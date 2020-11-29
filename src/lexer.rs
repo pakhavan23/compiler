@@ -2,57 +2,55 @@
  * author: <Erfan Derakhshani>
  * author_email: <techerfan@gmail.com>
  */
-
+#[derive(Debug)]
 pub enum SyntaxKind {
   WordlyToken,
-  NumberToken,                              //  Number like: 12 or 1.2
-  StringToken,                              //  String like "Sina#"
-  WhitespaceToken,                          //   :D
-  QuotationToken,                           //  "
-  CaretToken,                               //  ^
-  OpenBracketToken,                         //  }
-  OpenSquareBracketToken,                   //  [
-  CloseBracketToken,                        //  }
-  CloseSquareBracketToken,                  //  ]
-  AdditionToken,                            //  +
-  SubstractionToken,                        //  -
-  IncrementToken,                           //  ++
-  DecrementToken,                           //  --
-  MultiplicationToken,                      //  *
-  DivisionToken,                            //  /
-  ModulusToken,                             //  %
-  AssignToken,                              //  =
-  GTToken,                                  //  >
-  LTToken,                                  //  <
-  GTOEToken,                                //  >=
-  LTOEToken,                                //  <=
-  EqualToken,                               //  ==
-  ParenthesesOpenToken,                     //  (
-  ParenthesesCloseToken,                    //  )
-  CommaToken,                               //  ,
-  PrintToken,                               //  Benevis -> printf
-  ScanToken,                                //  Begir -> scanf
-  ConditionToken,                           //  agar -> if
-  LoopToken,                                //  ta -> while
-  FloatDefToken,                            //  Ashari -> float
-  IntegerDefToken,                          //  Sahih -> int
-  CharacterDefToken,                        //  Harf -> char
+  NumberToken,             //  Number like: 12 or 1.2
+  StringToken,             //  String like "Sina#"
+  WhitespaceToken,         //   :D
+  QuotationToken,          //  "
+  CaretToken,              //  ^
+  OpenBracketToken,        //  }
+  OpenSquareBracketToken,  //  [
+  CloseBracketToken,       //  }
+  CloseSquareBracketToken, //  ]
+  AdditionToken,           //  +
+  SubstractionToken,       //  -
+  IncrementToken,          //  ++
+  DecrementToken,          //  --
+  MultiplicationToken,     //  *
+  DivisionToken,           //  /
+  ModulusToken,            //  %
+  AssignToken,             //  =
+  GTToken,                 //  >
+  LTToken,                 //  <
+  GTOEToken,               //  >=
+  LTOEToken,               //  <=
+  EqualToken,              //  ==
+  ParenthesesOpenToken,    //  (
+  ParenthesesCloseToken,   //  )
+  CommaToken,              //  ,
+  PrintToken,              //  Benevis -> printf
+  ScanToken,               //  Begir -> scanf
+  ConditionToken,          //  agar -> if
+  LoopToken,               //  ta -> while
+  FloatDefToken,           //  Ashari -> float
+  IntegerDefToken,         //  Sahih -> int
+  CharacterDefToken,       //  Harf -> char
 }
 pub struct SyntaxToken {
   pub line: i32,
   pub position: i32,
   pub text: String,
-  pub kind: SyntaxKind
+  pub kind: SyntaxKind,
 }
 
 struct SyntaxDefiner {
   text: String,
-  kind: SyntaxKind 
+  kind: SyntaxKind,
 }
 
-
-
-pub fn get_tokens(text :&str) -> Vec<SyntaxToken> {
+pub fn get_tokens(text: &str) -> Vec<SyntaxToken> {
   lexer(text)
 }
 
@@ -64,42 +62,42 @@ impl SyntaxKind {
       SyntaxKind::CommaToken => SyntaxKind::CommaToken,
       SyntaxKind::WordlyToken => SyntaxKind::WordlyToken,
       SyntaxKind::NumberToken => SyntaxKind::NumberToken,
-      SyntaxKind::StringToken => SyntaxKind::StringToken,                              
-      SyntaxKind::WhitespaceToken => SyntaxKind::WhitespaceToken,           
-      SyntaxKind::QuotationToken => SyntaxKind::QuotationToken,          
-      SyntaxKind::CaretToken => SyntaxKind::CaretToken,                               
-      SyntaxKind::OpenBracketToken => SyntaxKind::OpenBracketToken,        
-      SyntaxKind::OpenSquareBracketToken => SyntaxKind::OpenSquareBracketToken,  
-      SyntaxKind::CloseBracketToken => SyntaxKind::CloseBracketToken,       
-      SyntaxKind::CloseSquareBracketToken => SyntaxKind::CloseSquareBracketToken, 
-      SyntaxKind::AdditionToken => SyntaxKind::AdditionToken,           
-      SyntaxKind::SubstractionToken => SyntaxKind::SubstractionToken,       
-      SyntaxKind::IncrementToken => SyntaxKind::IncrementToken,           
-      SyntaxKind::DecrementToken => SyntaxKind::DecrementToken,           
-      SyntaxKind::MultiplicationToken => SyntaxKind::MultiplicationToken,     
-      SyntaxKind::DivisionToken => SyntaxKind::DivisionToken,           
-      SyntaxKind::ModulusToken => SyntaxKind::ModulusToken,            
-      SyntaxKind::AssignToken => SyntaxKind::AssignToken,             
+      SyntaxKind::StringToken => SyntaxKind::StringToken,
+      SyntaxKind::WhitespaceToken => SyntaxKind::WhitespaceToken,
+      SyntaxKind::QuotationToken => SyntaxKind::QuotationToken,
+      SyntaxKind::CaretToken => SyntaxKind::CaretToken,
+      SyntaxKind::OpenBracketToken => SyntaxKind::OpenBracketToken,
+      SyntaxKind::OpenSquareBracketToken => SyntaxKind::OpenSquareBracketToken,
+      SyntaxKind::CloseBracketToken => SyntaxKind::CloseBracketToken,
+      SyntaxKind::CloseSquareBracketToken => SyntaxKind::CloseSquareBracketToken,
+      SyntaxKind::AdditionToken => SyntaxKind::AdditionToken,
+      SyntaxKind::SubstractionToken => SyntaxKind::SubstractionToken,
+      SyntaxKind::IncrementToken => SyntaxKind::IncrementToken,
+      SyntaxKind::DecrementToken => SyntaxKind::DecrementToken,
+      SyntaxKind::MultiplicationToken => SyntaxKind::MultiplicationToken,
+      SyntaxKind::DivisionToken => SyntaxKind::DivisionToken,
+      SyntaxKind::ModulusToken => SyntaxKind::ModulusToken,
+      SyntaxKind::AssignToken => SyntaxKind::AssignToken,
       SyntaxKind::GTToken => SyntaxKind::GTToken,
-      SyntaxKind::LTToken => SyntaxKind::LTToken,                 
-      SyntaxKind::GTOEToken => SyntaxKind::GTOEToken,                
-      SyntaxKind::LTOEToken => SyntaxKind::LTOEToken,                
-      SyntaxKind::EqualToken => SyntaxKind::EqualToken,               
-      SyntaxKind::PrintToken => SyntaxKind::PrintToken,                              
-      SyntaxKind::ScanToken => SyntaxKind::ScanToken,                            
-      SyntaxKind::ConditionToken => SyntaxKind::ConditionToken,                   
-      SyntaxKind::LoopToken => SyntaxKind::LoopToken,                         
-      SyntaxKind::FloatDefToken => SyntaxKind::FloatDefToken,                         
-      SyntaxKind::IntegerDefToken => SyntaxKind::IntegerDefToken,                    
-      SyntaxKind::CharacterDefToken => SyntaxKind::CharacterDefToken,                  
+      SyntaxKind::LTToken => SyntaxKind::LTToken,
+      SyntaxKind::GTOEToken => SyntaxKind::GTOEToken,
+      SyntaxKind::LTOEToken => SyntaxKind::LTOEToken,
+      SyntaxKind::EqualToken => SyntaxKind::EqualToken,
+      SyntaxKind::PrintToken => SyntaxKind::PrintToken,
+      SyntaxKind::ScanToken => SyntaxKind::ScanToken,
+      SyntaxKind::ConditionToken => SyntaxKind::ConditionToken,
+      SyntaxKind::LoopToken => SyntaxKind::LoopToken,
+      SyntaxKind::FloatDefToken => SyntaxKind::FloatDefToken,
+      SyntaxKind::IntegerDefToken => SyntaxKind::IntegerDefToken,
+      SyntaxKind::CharacterDefToken => SyntaxKind::CharacterDefToken,
     }
   }
 }
 
 /**
- * 
+ *
  * it gives the whole text and returns a vector of tokens
- * 
+ *
  * @param { String } text
  * @returns { Vec<SyntaxToken> }
  */
@@ -116,13 +114,13 @@ fn lexer(text: &str) -> Vec<SyntaxToken> {
       end_position = line.len() - 1;
     }
     let chars_vec: Vec<char> = line.chars().collect();
-    while position <= end_position && chars_vec.len() > 0{
+    while position <= end_position && chars_vec.len() > 0 {
       if chars_vec[position] == ' ' {
         let token = SyntaxToken {
           text: chars_vec[position].to_string(),
           position: position as i32,
           kind: SyntaxKind::WhitespaceToken,
-          line: i as i32
+          line: i as i32,
         };
         tokens.push(token);
       } else if chars_vec[position] == '{' {
@@ -130,7 +128,7 @@ fn lexer(text: &str) -> Vec<SyntaxToken> {
           text: chars_vec[position].to_string(),
           position: position as i32,
           kind: SyntaxKind::OpenBracketToken,
-          line: i as i32
+          line: i as i32,
         };
         tokens.push(token);
       } else if chars_vec[position] == '=' {
@@ -138,7 +136,7 @@ fn lexer(text: &str) -> Vec<SyntaxToken> {
           text: chars_vec[position].to_string(),
           position: position as i32,
           kind: SyntaxKind::AssignToken,
-          line: i as i32
+          line: i as i32,
         };
         tokens.push(token);
       } else if chars_vec[position] == '(' {
@@ -146,7 +144,7 @@ fn lexer(text: &str) -> Vec<SyntaxToken> {
           text: chars_vec[position].to_string(),
           position: position as i32,
           kind: SyntaxKind::ParenthesesOpenToken,
-          line: i as i32
+          line: i as i32,
         };
         tokens.push(token);
       } else if chars_vec[position] == ')' {
@@ -154,7 +152,7 @@ fn lexer(text: &str) -> Vec<SyntaxToken> {
           text: chars_vec[position].to_string(),
           position: position as i32,
           kind: SyntaxKind::ParenthesesCloseToken,
-          line: i as i32
+          line: i as i32,
         };
         tokens.push(token);
       } else if chars_vec[position] == ',' {
@@ -162,7 +160,7 @@ fn lexer(text: &str) -> Vec<SyntaxToken> {
           text: chars_vec[position].to_string(),
           position: position as i32,
           kind: SyntaxKind::CommaToken,
-          line: i as i32
+          line: i as i32,
         };
         tokens.push(token);
       } else if chars_vec[position] == '[' {
@@ -170,7 +168,7 @@ fn lexer(text: &str) -> Vec<SyntaxToken> {
           text: chars_vec[position].to_string(),
           position: position as i32,
           kind: SyntaxKind::OpenSquareBracketToken,
-          line: i as i32
+          line: i as i32,
         };
         tokens.push(token);
       } else if chars_vec[position] == ']' {
@@ -178,7 +176,7 @@ fn lexer(text: &str) -> Vec<SyntaxToken> {
           text: chars_vec[position].to_string(),
           position: position as i32,
           kind: SyntaxKind::CloseSquareBracketToken,
-          line: i as i32
+          line: i as i32,
         };
         tokens.push(token);
       } else if chars_vec[position] == '}' {
@@ -186,7 +184,7 @@ fn lexer(text: &str) -> Vec<SyntaxToken> {
           text: chars_vec[position].to_string(),
           position: position as i32,
           kind: SyntaxKind::CloseBracketToken,
-          line: i as i32
+          line: i as i32,
         };
         tokens.push(token);
       } else if chars_vec[position] == '^' {
@@ -194,7 +192,7 @@ fn lexer(text: &str) -> Vec<SyntaxToken> {
           text: chars_vec[position].to_string(),
           position: position as i32,
           kind: SyntaxKind::CaretToken,
-          line: i as i32
+          line: i as i32,
         };
         tokens.push(token);
       } else if chars_vec[position] == '"' {
@@ -213,7 +211,7 @@ fn lexer(text: &str) -> Vec<SyntaxToken> {
           text: chars_vec[position].to_string(),
           position: position as i32,
           kind: SyntaxKind::QuotationToken,
-          line: i as i32
+          line: i as i32,
         };
         tokens.push(token);
         if flag {
@@ -221,12 +219,11 @@ fn lexer(text: &str) -> Vec<SyntaxToken> {
             text: string_word,
             position: (position + 1) as i32,
             kind: SyntaxKind::StringToken,
-            line: i as i32
-          }; 
+            line: i as i32,
+          };
           tokens.push(s_token);
           position = new_position
         }
-
       } else {
         let word_tokens = word_detector(&chars_vec, &mut position, i as i32);
         for token in word_tokens {
@@ -236,26 +233,29 @@ fn lexer(text: &str) -> Vec<SyntaxToken> {
       position = position + 1;
     }
   }
-  
 
   /*
-   * use this block of code to convert 
+   * use this block of code to convert
    * string to a vector of chars:
-   * 
+   *
   let name = String::from("erfan");
   let s: Vec<char> = name.chars().collect();
   */
   tokens
 }
 
-fn word_detector(chars_vec: &Vec<char>,position: &mut usize, line_number: i32) -> Vec<SyntaxToken> {
+fn word_detector(
+  chars_vec: &Vec<char>,
+  position: &mut usize,
+  line_number: i32,
+) -> Vec<SyntaxToken> {
   let mut tokens: Vec<SyntaxToken> = vec![];
   let mut word: String = String::from("");
   /* we know the current position has a wordly character because we had checked it before.*/
   word.push(chars_vec[*position]);
   for i in *position + 1..chars_vec.len() {
-    if chars_vec[i] != ' ' 
-      && chars_vec[i] != '{' 
+    if chars_vec[i] != ' '
+      && chars_vec[i] != '{'
       && chars_vec[i] != '['
       && chars_vec[i] != '}'
       && chars_vec[i] != ']'
@@ -264,23 +264,24 @@ fn word_detector(chars_vec: &Vec<char>,position: &mut usize, line_number: i32) -
       && chars_vec[i] != ')'
       && chars_vec[i] != ','
       && chars_vec[i] != '='
-      && chars_vec[i] != '"' {
-        word.push(chars_vec[i]);
-        /* in case that the last character is a wordly char. then we need to change to position to "i". */
-        if i == chars_vec.len() - 1 {
-          *position = i;  
-        }
-      } else {
-        *position = i - 1;
-        break;
+      && chars_vec[i] != '"'
+    {
+      word.push(chars_vec[i]);
+      /* in case that the last character is a wordly char. then we need to change to position to "i". */
+      if i == chars_vec.len() - 1 {
+        *position = i;
       }
+    } else {
+      *position = i - 1;
+      break;
+    }
   }
   if is_number(word.chars().collect()) {
     tokens.push(SyntaxToken {
       text: word,
       position: *position as i32,
       kind: SyntaxKind::NumberToken,
-      line: line_number
+      line: line_number,
     })
   } else {
     let wordly_tokens = get_syntax(word.clone(), *position, line_number as usize);
@@ -324,86 +325,86 @@ fn is_number(chars_vec: Vec<char>) -> bool {
 }
 
 fn get_syntax(phrase: String, position: usize, line: usize) -> Vec<SyntaxToken> {
-  let syntax_arr = [ 
-    SyntaxDefiner{
+  let syntax_arr = [
+    SyntaxDefiner {
       text: "&BM".to_string(),
-      kind: SyntaxKind::GTOEToken
+      kind: SyntaxKind::GTOEToken,
     },
-    SyntaxDefiner{
+    SyntaxDefiner {
       text: "&B".to_string(),
-      kind: SyntaxKind::GTToken
+      kind: SyntaxKind::GTToken,
     },
-    SyntaxDefiner{
+    SyntaxDefiner {
       text: "&KM".to_string(),
-      kind: SyntaxKind::LTOEToken
+      kind: SyntaxKind::LTOEToken,
     },
-    SyntaxDefiner{
+    SyntaxDefiner {
       text: "&K".to_string(),
-      kind: SyntaxKind::LTToken
+      kind: SyntaxKind::LTToken,
     },
-    SyntaxDefiner{
+    SyntaxDefiner {
       text: "&MM".to_string(),
-      kind: SyntaxKind::EqualToken
+      kind: SyntaxKind::EqualToken,
     },
-    SyntaxDefiner{
+    SyntaxDefiner {
       text: "Jam".to_string(),
-      kind: SyntaxKind::AdditionToken
+      kind: SyntaxKind::AdditionToken,
     },
-    SyntaxDefiner{
+    SyntaxDefiner {
       text: "YekiBala".to_string(),
-      kind: SyntaxKind::IncrementToken
+      kind: SyntaxKind::IncrementToken,
     },
-    SyntaxDefiner{
+    SyntaxDefiner {
       text: "Kam".to_string(),
-      kind: SyntaxKind::SubstractionToken
+      kind: SyntaxKind::SubstractionToken,
     },
-    SyntaxDefiner{
+    SyntaxDefiner {
       text: "YekiPain".to_string(),
-      kind: SyntaxKind::DecrementToken
+      kind: SyntaxKind::DecrementToken,
     },
-    SyntaxDefiner{
+    SyntaxDefiner {
       text: "Zarb".to_string(),
-      kind: SyntaxKind::MultiplicationToken
+      kind: SyntaxKind::MultiplicationToken,
     },
-    SyntaxDefiner{
+    SyntaxDefiner {
       text: "Tagsim".to_string(),
-      kind: SyntaxKind::DivisionToken
+      kind: SyntaxKind::DivisionToken,
     },
-    SyntaxDefiner{
+    SyntaxDefiner {
       text: "Bagimonde".to_string(),
-      kind: SyntaxKind::ModulusToken
+      kind: SyntaxKind::ModulusToken,
     },
-    SyntaxDefiner{
+    SyntaxDefiner {
       text: "Benevis".to_string(),
-      kind: SyntaxKind::PrintToken
+      kind: SyntaxKind::PrintToken,
     },
-    SyntaxDefiner{
+    SyntaxDefiner {
       text: "Begir".to_string(),
-      kind: SyntaxKind::ScanToken
+      kind: SyntaxKind::ScanToken,
     },
-    SyntaxDefiner{
+    SyntaxDefiner {
       text: "agar".to_string(),
-      kind: SyntaxKind::ConditionToken
+      kind: SyntaxKind::ConditionToken,
     },
-    SyntaxDefiner{
+    SyntaxDefiner {
       text: "ta".to_string(),
-      kind: SyntaxKind::LoopToken
+      kind: SyntaxKind::LoopToken,
     },
-    SyntaxDefiner{
+    SyntaxDefiner {
       text: "Sahih".to_string(),
-      kind: SyntaxKind::IntegerDefToken
+      kind: SyntaxKind::IntegerDefToken,
     },
-    SyntaxDefiner{
+    SyntaxDefiner {
       text: "Ashari".to_string(),
-      kind: SyntaxKind::FloatDefToken
+      kind: SyntaxKind::FloatDefToken,
     },
-    SyntaxDefiner{
+    SyntaxDefiner {
       text: "Harf".to_string(),
-      kind: SyntaxKind::CharacterDefToken
+      kind: SyntaxKind::CharacterDefToken,
     },
   ];
-  let mut tokens: Vec<SyntaxToken> =vec![];
-  let mut is_syntax = false; 
+  let mut tokens: Vec<SyntaxToken> = vec![];
+  let mut is_syntax = false;
 
   for syntax in syntax_arr.iter() {
     if phrase.contains(&syntax.text) {
@@ -415,7 +416,7 @@ fn get_syntax(phrase: String, position: usize, line: usize) -> Vec<SyntaxToken> 
             line: line as i32,
             position: position as i32,
             text: phrase[0..index].to_string().clone(),
-            kind: SyntaxKind::NumberToken
+            kind: SyntaxKind::NumberToken,
           });
         } else {
           let v = get_syntax(phrase[0..index].to_string(), position, line);
@@ -428,7 +429,7 @@ fn get_syntax(phrase: String, position: usize, line: usize) -> Vec<SyntaxToken> 
               line: line as i32,
               position: position as i32,
               text: phrase[0..index].to_string().clone(),
-              kind: SyntaxKind::WordlyToken
+              kind: SyntaxKind::WordlyToken,
             });
           }
         }
@@ -438,19 +439,30 @@ fn get_syntax(phrase: String, position: usize, line: usize) -> Vec<SyntaxToken> 
         line: line as i32,
         position: (position + index) as i32,
         text: syntax.text.clone(),
-        kind: syntax.kind.copy()
+        kind: syntax.kind.copy(),
       });
 
       if index + syntax.text.len() < phrase.len() - 1 {
-        if is_number(phrase[index + syntax.text.len()..phrase.len()].to_string().chars().collect()) {
+        if is_number(
+          phrase[index + syntax.text.len()..phrase.len()]
+            .to_string()
+            .chars()
+            .collect(),
+        ) {
           tokens.push(SyntaxToken {
             line: line as i32,
             position: (position + index + syntax.text.len()) as i32,
-            text: phrase[index + syntax.text.len()..phrase.len()].to_string().clone(),
-            kind: SyntaxKind::NumberToken
+            text: phrase[index + syntax.text.len()..phrase.len()]
+              .to_string()
+              .clone(),
+            kind: SyntaxKind::NumberToken,
           });
         } else {
-          let v = get_syntax(phrase[index + syntax.text.len()..phrase.len()].to_string(), position + index + syntax.text.len(), line);
+          let v = get_syntax(
+            phrase[index + syntax.text.len()..phrase.len()].to_string(),
+            position + index + syntax.text.len(),
+            line,
+          );
           if v.len() > 0 {
             for item in v {
               tokens.push(item);
@@ -459,8 +471,10 @@ fn get_syntax(phrase: String, position: usize, line: usize) -> Vec<SyntaxToken> 
             tokens.push(SyntaxToken {
               line: line as i32,
               position: (position + index + syntax.text.len()) as i32,
-              text: phrase[index + syntax.text.len()..phrase.len()].to_string().clone(),
-              kind: SyntaxKind::WordlyToken
+              text: phrase[index + syntax.text.len()..phrase.len()]
+                .to_string()
+                .clone(),
+              kind: SyntaxKind::WordlyToken,
             });
           }
         }
@@ -473,7 +487,7 @@ fn get_syntax(phrase: String, position: usize, line: usize) -> Vec<SyntaxToken> 
       line: line as i32,
       position: position as i32,
       text: phrase,
-      kind: SyntaxKind::WordlyToken
+      kind: SyntaxKind::WordlyToken,
     });
   }
   tokens
