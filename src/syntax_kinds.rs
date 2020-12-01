@@ -1,9 +1,12 @@
 pub enum SyntaxKind {
+  UnknownToken,
   WordlyToken,
   NumberToken,                              //  Number like: 12 or 1.2
   StringToken,                              //  String like "Sina#"
+  CharToken,                                     //  A character
   WhitespaceToken,                          //   :D
   QuotationToken,                           //  "
+  SingleQouteToken,                         //  '
   CaretToken,                               //  ^
   OpenBracketToken,                         //  }
   OpenSquareBracketToken,                   //  [
@@ -37,6 +40,8 @@ pub enum SyntaxKind {
 impl SyntaxKind {
   pub fn copy(&self) -> SyntaxKind {
     match self {
+      SyntaxKind::SingleQouteToken => SyntaxKind::SingleQouteToken,
+      SyntaxKind::CharToken => SyntaxKind::CharToken,
       SyntaxKind::ParenthesesCloseToken => SyntaxKind::ParenthesesCloseToken,
       SyntaxKind::ParenthesesOpenToken => SyntaxKind::ParenthesesOpenToken,
       SyntaxKind::CommaToken => SyntaxKind::CommaToken,
@@ -69,7 +74,8 @@ impl SyntaxKind {
       SyntaxKind::LoopToken => SyntaxKind::LoopToken,                         
       SyntaxKind::FloatDefToken => SyntaxKind::FloatDefToken,                         
       SyntaxKind::IntegerDefToken => SyntaxKind::IntegerDefToken,                    
-      SyntaxKind::CharacterDefToken => SyntaxKind::CharacterDefToken,                  
+      SyntaxKind::CharacterDefToken => SyntaxKind::CharacterDefToken,
+      _ => SyntaxKind::UnknownToken,     
     }
   }
 }
