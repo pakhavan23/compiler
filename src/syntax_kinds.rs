@@ -3,7 +3,7 @@ pub enum SyntaxKind {
   WordlyToken,
   NumberToken,                              //  Number like: 12 or 1.2
   StringToken,                              //  String like "Sina#"
-  CharToken,                                     //  A character
+  CharToken,                                //  A character
   WhitespaceToken,                          //   :D
   QuotationToken,                           //  "
   SingleQouteToken,                         //  '
