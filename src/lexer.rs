@@ -130,6 +130,7 @@ fn lexer(text: &str) -> Vec<SyntaxToken> {
           line: i as i32
         };
         tokens.push(token);
+        /* the existense of a character depends on the existense of the second ' mark.*/
         if chars_vec[position + 2] == '\'' {
           tokens.push(SyntaxToken {
             text: chars_vec[position + 1].to_string(),
@@ -152,7 +153,7 @@ fn lexer(text: &str) -> Vec<SyntaxToken> {
         for j in position + 1..chars_vec.len() {
           if chars_vec[j] == '"' {
             string_word = chars_vec[position + 1..j].iter().collect();
-            new_position = j - 1;
+            new_position = j;
             flag = true;
             break;
           }
@@ -164,14 +165,20 @@ fn lexer(text: &str) -> Vec<SyntaxToken> {
           line: i as i32
         };
         tokens.push(token);
-        if flag {
-          let s_token = SyntaxToken {
-            text: string_word,
-            position: (position + 1) as i32,
-            kind: SyntaxKind::StringToken,
+        if flag { 
+          let string_tokens = get_string_tokens(string_word.clone(), position + 1, i);
+          
+          for token in string_tokens {
+            tokens.push(token);
+          }
+
+          tokens.push(SyntaxToken {
+            text: chars_vec[new_position].to_string(),
+            position: new_position as i32,
+            kind: SyntaxKind::QuotationToken,
             line: i as i32
-          }; 
-          tokens.push(s_token);
+          });
+
           position = new_position
         }
 
@@ -233,10 +240,8 @@ fn word_detector(chars_vec: &Vec<char>,position: &mut usize, line_number: i32) -
     })
   } else {
     let wordly_tokens = get_syntax(word.clone(), *position, line_number as usize);
-    let mut i = 0;
     for token in wordly_tokens {
       tokens.push(token);
-      i = i + 1
     }
   }
   tokens
@@ -423,6 +428,72 @@ fn get_syntax(phrase: String, position: usize, line: usize) -> Vec<SyntaxToken> 
       position: position as i32,
       text: phrase,
       kind: SyntaxKind::WordlyToken
+    });
+  }
+  tokens
+}
+
+fn get_string_tokens(phrase: String, position: usize, line: usize) -> Vec<SyntaxToken> {
+  let mut tokens: Vec<SyntaxToken> = vec![];
+  let mut is_syntax = false;
+  let syntax_arr = [
+    SyntaxDefiner {
+      text: "%d".to_string(),
+      kind: SyntaxKind::StringNumToken
+    }
+  ];
+
+  for syntax in syntax_arr.iter() {
+    if phrase.contains(&syntax.text) {
+      is_syntax = true;
+      let index = phrase.find(&syntax.text).unwrap();
+      if index > 0 {
+        let v = get_string_tokens(phrase[0..index].to_string(), position, line);
+        if v.len() > 0 {
+          for item in v {
+            tokens.push(item);
+          }
+        } else {
+          tokens.push(SyntaxToken {
+            line: line as i32,
+            position: position as i32,
+            text: phrase[0..index].to_string().clone(),
+            kind: SyntaxKind::StringToken
+          });
+        }
+      }
+
+      tokens.push(SyntaxToken {
+        line: line as i32,
+        position: (position + index) as i32,
+        text: syntax.text.clone(),
+        kind: syntax.kind.copy()
+      });
+
+      if index + syntax.text.len() < phrase.len() - 1 {
+        let v = get_string_tokens(phrase[index + syntax.text.len()..phrase.len()].to_string(), position + index + syntax.text.len(), line);
+        if v.len() > 0 {
+          for item in v {
+            tokens.push(item);
+          }
+        } else {
+          tokens.push(SyntaxToken {
+            line: line as i32,
+            position: (position + index + syntax.text.len()) as i32,
+            text: phrase[index + syntax.text.len()..phrase.len()].to_string().clone(),
+            kind: SyntaxKind::StringToken
+          });
+        }
+      }
+      break;
+    }
+  }
+  if !is_syntax {
+    tokens.push(SyntaxToken {
+      line: line as i32,
+      position: position as i32,
+      text: phrase,
+      kind: SyntaxKind::StringToken
     });
   }
   tokens

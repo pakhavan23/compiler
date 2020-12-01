@@ -3,7 +3,7 @@ pub enum SyntaxKind {
   WordlyToken,
   NumberToken,                              //  Number like: 12 or 1.2
   StringToken,                              //  String like "Sina#"
-  CharToken,                                     //  A character
+  CharToken,                                //  A character
   WhitespaceToken,                          //   :D
   QuotationToken,                           //  "
   SingleQouteToken,                         //  '
@@ -28,6 +28,7 @@ pub enum SyntaxKind {
   ParenthesesOpenToken,                     //  (
   ParenthesesCloseToken,                    //  )
   CommaToken,                               //  ,
+  StringNumToken,                           //  %d
   PrintToken,                               //  Benevis -> printf
   ScanToken,                                //  Begir -> scanf
   ConditionToken,                           //  agar -> if
@@ -40,6 +41,7 @@ pub enum SyntaxKind {
 impl SyntaxKind {
   pub fn copy(&self) -> SyntaxKind {
     match self {
+      SyntaxKind::StringNumToken => SyntaxKind::StringNumToken,
       SyntaxKind::SingleQouteToken => SyntaxKind::SingleQouteToken,
       SyntaxKind::CharToken => SyntaxKind::CharToken,
       SyntaxKind::ParenthesesCloseToken => SyntaxKind::ParenthesesCloseToken,
