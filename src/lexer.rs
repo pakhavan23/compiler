@@ -122,6 +122,29 @@ fn lexer(text: &str) -> Vec<SyntaxToken> {
           line: i as i32
         };
         tokens.push(token);
+      } else if chars_vec[position] == '\''{
+        let token = SyntaxToken {
+          text: chars_vec[position].to_string(),
+          position: position as i32,
+          kind: SyntaxKind::SingleQouteToken,
+          line: i as i32
+        };
+        tokens.push(token);
+        if chars_vec[position + 2] == '\'' {
+          tokens.push(SyntaxToken {
+            text: chars_vec[position + 1].to_string(),
+            position: (position + 1) as i32,
+            kind: SyntaxKind::CharToken,
+            line: i as i32
+          });
+          tokens.push(SyntaxToken {
+            text: chars_vec[position + 2].to_string(),
+            position: (position + 2) as i32,
+            kind: SyntaxKind::SingleQouteToken,
+            line: i as i32
+          });
+          position = position + 2;
+        }
       } else if chars_vec[position] == '"' {
         let mut string_word = String::new();
         let mut flag = false;
@@ -189,6 +212,7 @@ fn word_detector(chars_vec: &Vec<char>,position: &mut usize, line_number: i32) -
       && chars_vec[i] != ')'
       && chars_vec[i] != ','
       && chars_vec[i] != '='
+      && chars_vec[i] != '\''
       && chars_vec[i] != '"' {
         word.push(chars_vec[i]);
         /* in case that the last character is a wordly char. then we need to change to position to "i". */
