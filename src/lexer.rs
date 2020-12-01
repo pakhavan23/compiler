@@ -130,6 +130,7 @@ fn lexer(text: &str) -> Vec<SyntaxToken> {
           line: i as i32
         };
         tokens.push(token);
+        /* the existense of a character depends on the existense of the second ' mark.*/
         if chars_vec[position + 2] == '\'' {
           tokens.push(SyntaxToken {
             text: chars_vec[position + 1].to_string(),
@@ -152,7 +153,7 @@ fn lexer(text: &str) -> Vec<SyntaxToken> {
         for j in position + 1..chars_vec.len() {
           if chars_vec[j] == '"' {
             string_word = chars_vec[position + 1..j].iter().collect();
-            new_position = j - 1;
+            new_position = j;
             flag = true;
             break;
           }
@@ -164,14 +165,21 @@ fn lexer(text: &str) -> Vec<SyntaxToken> {
           line: i as i32
         };
         tokens.push(token);
-        if flag {
-          let s_token = SyntaxToken {
+        if flag { 
+          tokens.push(SyntaxToken {
             text: string_word,
             position: (position + 1) as i32,
             kind: SyntaxKind::StringToken,
             line: i as i32
-          }; 
-          tokens.push(s_token);
+          });
+
+          tokens.push(SyntaxToken {
+            text: chars_vec[new_position].to_string(),
+            position: new_position as i32,
+            kind: SyntaxKind::QuotationToken,
+            line: i as i32
+          });
+
           position = new_position
         }
 
