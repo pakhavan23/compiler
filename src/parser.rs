@@ -45,7 +45,10 @@ pub fn parse(tokens: Vec<SyntaxToken>) {
                     v_operators.push(token.text);
                     state = 20;
                 }
-                SyntaxKind::CaretToken => state = 0, // assigning finished
+                SyntaxKind::CaretToken => {
+                    v_numbers = vec![];
+                    state = 0
+                } // assigning finished
                 _ => println!(
                     "Error in postion {} , {} , {}",
                     token.position, token.text, state
@@ -58,6 +61,10 @@ pub fn parse(tokens: Vec<SyntaxToken>) {
                     v_numbers.push(token.text);
                 }
                 SyntaxKind::StringToken => state = 21,
+                SyntaxKind::ParenthesesOpenToken => {
+                    v_operators.push(token.text);
+                    state = 22;
+                }
                 _ => println!("Error in postion {}", token.position),
             },
             21 => match token.kind {
