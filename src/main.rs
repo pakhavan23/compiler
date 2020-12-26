@@ -1,11 +1,13 @@
 mod lexer;
-mod parser;
+mod syntax_kinds;
+mod parsing_table;
 
 use lexer::SyntaxToken;
-use parser::parse;
 
-fn main(){
-    let tokens: Vec<SyntaxToken> = lexer::get_tokens(" Benevis(X)^");
-
-    parse(tokens);
+fn main() {
+  let tokens: Vec<SyntaxToken> = lexer::get_tokens("Begir(\"sddf\", ali)^\nagar { 2 &MM 3 } [ 'AB' 'A' ]");
+  for token in tokens {
+      println!("position: {} line: {} text: {}", token.position, token.line, token.text);
+  }
+  parsing_table::parsing_table();
 }
