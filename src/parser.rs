@@ -2,221 +2,104 @@
 #![allow(unused_variables)]
 #![allow(unused_mut)]
 
-use crate::lexer::SyntaxKind;
 use crate::lexer::SyntaxToken;
+use crate::syntax_kinds::SyntaxKind;
 
-pub fn parse(tokens: Vec<SyntaxToken>) {
-    let mut state: i32 = 0;
-    let mut v_operators: Vec<String> = vec![];
-    let mut v_numbers: Vec<String> = vec![];
-    let mut v_nodes: Vec<Tree> = vec![];
-
+pub fn parse(tokens: Vec<SyntaxToken>, table: [[&'static str; 33]; 22]) {
+    let mut stack: Vec<&'static str> = vec!["$", "S"];
+    let id = String::from("id");
+    let num = String::from("num");
+    let string = String::from("str");
+    let mut line: i32 = 0;
     for token in tokens {
-        match state {
-            0 => match token.kind {
-                SyntaxKind::WhitespaceToken => state = 0, // if our token is whitespace , we will stay in that state
-                SyntaxKind::WordlyToken => state = 17,    // assigning value to a variable
-                _ => println!("Error in postion {}", token.position),
-            },
-            17 => match token.kind {
-                SyntaxKind::WhitespaceToken => state = 17,
-                SyntaxKind::AssignToken => state = 18,
-                _ => println!("Error in postion {}", token.position),
-            },
-            18 => match token.kind {
-                SyntaxKind::WhitespaceToken => state = 18,
-                SyntaxKind::NumberToken | SyntaxKind::WordlyToken => {
-                    state = 19;
-                    v_numbers.push(token.text);
-                }
-                SyntaxKind::StringToken => state = 19,
-                SyntaxKind::ParenthesesOpenToken => {
-                    v_operators.push(token.text);
-                    state = 22;
-                }
-                _ => println!("Error in postion {}", token.position),
-            },
-            19 => match token.kind {
-                SyntaxKind::WhitespaceToken => state = 19,
-                SyntaxKind::AdditionToken
-                | SyntaxKind::SubstractionToken
-                | SyntaxKind::DivisionToken
-                | SyntaxKind::MultiplicationToken => {
-                    v_operators.push(token.text);
-                    state = 20;
-                }
-                SyntaxKind::CaretToken => {
-                    v_numbers = vec![];
-                    state = 0
-                } // assigning finished
-                _ => println!(
-                    "Error in postion {} , {} , {}",
-                    token.position, token.text, state
-                ),
-            },
-            20 => match token.kind {
-                SyntaxKind::WhitespaceToken => state = 20,
-                SyntaxKind::NumberToken | SyntaxKind::WordlyToken => {
-                    state = 21;
-                    v_numbers.push(token.text);
-                }
-                SyntaxKind::StringToken => state = 21,
-                SyntaxKind::ParenthesesOpenToken => {
-                    v_operators.push(token.text);
-                    state = 22;
-                }
-                _ => println!("Error in postion {}", token.position),
-            },
-            21 => match token.kind {
-                SyntaxKind::WhitespaceToken => state = 21,
-                SyntaxKind::AdditionToken
-                | SyntaxKind::SubstractionToken
-                | SyntaxKind::DivisionToken
-                | SyntaxKind::MultiplicationToken => {
-                    precedence(&mut v_operators, &mut v_numbers, &mut v_nodes, token.text);
-                    state = 20;
-                }
-                SyntaxKind::ParenthesesCloseToken => {
-                    creat_tree(&mut v_operators, &mut v_numbers, &mut v_nodes, false)
-                }
-                SyntaxKind::CaretToken => {
-                    if v_operators.len() != 0 {
-                        creat_tree(&mut v_operators, &mut v_numbers, &mut v_nodes, false)
-                    }
-                    state = 0
-                }
-                _ => println!("Error in postion {} , {}", token.position, token.text),
-            },
-            22 => match token.kind {
-                SyntaxKind::WhitespaceToken => state = 22,
-                SyntaxKind::NumberToken | SyntaxKind::WordlyToken => {
-                    v_numbers.push(token.text);
-                    state = 23;
-                }
-                SyntaxKind::ParenthesesOpenToken => {
-                    v_operators.push(token.text);
-                    state = 22
-                }
-                _ => println!("Error in postion {}", token.position),
-            },
-            23 => match token.kind {
-                SyntaxKind::WhitespaceToken => state = 23,
-                SyntaxKind::AdditionToken
-                | SyntaxKind::SubstractionToken
-                | SyntaxKind::DivisionToken
-                | SyntaxKind::MultiplicationToken => {
-                    precedence(&mut v_operators, &mut v_numbers, &mut v_nodes, token.text);
-                    state = 22;
-                }
-                SyntaxKind::ParenthesesCloseToken => {
-                    creat_tree(&mut v_operators, &mut v_numbers, &mut v_nodes, false);
-                    state = 21;
-                }
-                _ => println!("Error in postion {} , {}", token.position, token.text),
-            },
-            _ => println!("1"),
+        let mut non_terminal_index: usize;
+        let text = token.text;
+        match token.kind {
+            SyntaxKind::WhitespaceToken | SyntaxKind::QuotationToken => continue,
+            SyntaxKind::WordlyToken => non_terminal_index = get_non_terminal_index(&id, &table),
+            SyntaxKind::NumberToken => non_terminal_index = get_non_terminal_index(&num, &table),
+            SyntaxKind::StringToken | SyntaxKind::StringNumToken => {
+                non_terminal_index = get_non_terminal_index(&string, &table)
+            }
+            _ => non_terminal_index = get_non_terminal_index(&text, &table),
         }
-    }
-    println!("{:?}", v_nodes);
-    println!("{}", v_nodes.len());
-}
-
-fn creat_tree(
-    operators: &mut Vec<String>,
-    numbers: &mut Vec<String>,
-    nodes: &mut Vec<Tree>,
-    flag: bool,
-) {
-    loop {
-        match operators.pop() {
-            Some(z) => {
-                if z == "(" {
-                    break;
-                }
-                let node = Node { value: z };
-                match numbers.pop() {
-                    Some(num2) => {
-                        let node_right = Node { value: num2 };
-                        let mut new_tree = Tree {
-                            main: node,
-                            left_child: Node {
-                                value: "nothing".to_string(),
-                            },
-                            right_child: node_right,
-                        };
-                        match numbers.pop() {
-                            Some(num1) => {
-                                let node_left = Node { value: num1 };
-                                new_tree.left_child = node_left;
+        let kind = token.kind;
+        if line < token.line {
+            line += 1;
+            stack.push("S");
+        }
+        loop {
+            match stack.pop() {
+                Some(value) => {
+                    println!(
+                        "{} and index of non is {},{}",
+                        value, non_terminal_index, text
+                    );
+                    if is_terminal(value, &table) {
+                        let terminal_index: usize = get_terminal_index(value, &table);
+                        let production = table[terminal_index][non_terminal_index];
+                        let mut pros: Vec<&str> = production.split(" ").collect();
+                        for pro in pros.iter().rev() {
+                            if pro.to_string() != "" {
+                                stack.push(pro);
                             }
-                            None => match nodes.pop() {
-                                Some(node_pop) => {
-                                    if node_pop.main.value == "Zarb" {
-                                        new_tree.left_child = Node {
-                                            value: "Zarb".to_string(),
-                                        };
-                                    } else if node_pop.main.value == "Jam" {
-                                        new_tree.left_child = Node {
-                                            value: "Jam".to_string(),
-                                        };
-                                    } else if node_pop.main.value == "Kam" {
-                                        new_tree.left_child = Node {
-                                            value: "Kam".to_string(),
-                                        };
-                                    } else if node_pop.main.value == "Tagsim" {
-                                        new_tree.left_child = Node {
-                                            value: "Tagsim".to_string(),
-                                        };
-                                    }
-                                    nodes.push(node_pop);
-                                }
-                                None => println!("Nothing"),
-                            },
                         }
-                        nodes.push(new_tree);
+                    } else if is_non_terminal(value, &table) {
+                        if text == value.to_string()
+                            || (value == "id" && non_terminal_index == 26)
+                            || (value == "num" && non_terminal_index == 27)
+                            || (value == "str" && non_terminal_index == 28)
+                        {
+                            break;
+                        } else {
+                            println!("error on Line {} And {}", line, value);
+                        }
                     }
-                    None => break,
                 }
+                None => break,
             }
-            None => break,
-        }
-        if flag {
-            break;
         }
     }
 }
 
-fn precedence(
-    operators: &mut Vec<String>,
-    numbers: &mut Vec<String>,
-    nodes: &mut Vec<Tree>,
-    text: String,
-) {
-    match operators.pop() {
-        Some(z) => {
-            if (z == "Zarb" || z == "Tagsim") && (text == "Jam" || text == "Kam") {
-                operators.push(z);
-                creat_tree(operators, numbers, nodes, true);
-                operators.push(text);
-            } else {
-                operators.push(z);
-                operators.push(text);
-            }
+fn is_terminal(input: &'static str, table: &[[&'static str; 33]; 22]) -> bool {
+    let mut flag: bool = false;
+    for i in 1..22 {
+        if table[i][0] == input {
+            flag = true;
         }
-        None => operators.push(text),
     }
+
+    flag
 }
 
-#[derive(Debug)]
-struct Node {
-    value: String,
+fn is_non_terminal(input: &'static str, table: &[[&'static str; 33]; 22]) -> bool {
+    let mut flag: bool = false;
+    for i in 1..33 {
+        if table[0][i] == input {
+            flag = true;
+        }
+    }
+
+    flag
 }
 
-#[derive(Debug)]
-struct Tree {
-    main: Node,
-    right_child: Node,
-    left_child: Node,
+fn get_terminal_index(input: &'static str, table: &[[&'static str; 33]; 22]) -> usize {
+    let mut index: usize = 0;
+    for i in 1..22 {
+        if table[i][0] == input {
+            index = i;
+        }
+    }
+    index
 }
-//use crate::lexer::SyntaxKind;
-//use crate::lexer::SyntaxToken;
+
+fn get_non_terminal_index(input: &String, table: &[[&'static str; 33]; 22]) -> usize {
+    let mut index: usize = 0;
+    for i in 1..33 {
+        if table[0][i] == input {
+            index = i;
+        }
+    }
+    index
+}

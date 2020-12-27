@@ -4,6 +4,7 @@
  */
 use crate::syntax_kinds::SyntaxKind;
 
+#[derive(Debug)]
 pub struct SyntaxToken {
   pub line: i32,
   pub position: i32,
