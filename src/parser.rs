@@ -10,7 +10,7 @@ pub fn parse(tokens: Vec<SyntaxToken>, table: [[&'static str; 33]; 22]) {
     let id = String::from("id");
     let num = String::from("num");
     let string = String::from("str");
-    let mut line: i32 = 0;
+    let mut line: i32 = 1;
     for token in tokens {
         let mut non_terminal_index: usize;
         let text = token.text;
@@ -24,17 +24,13 @@ pub fn parse(tokens: Vec<SyntaxToken>, table: [[&'static str; 33]; 22]) {
             _ => non_terminal_index = get_non_terminal_index(&text, &table),
         }
         let kind = token.kind;
-        if line < token.line {
+        if line < token.line + 1 {
             line += 1;
             stack.push("S");
         }
         loop {
             match stack.pop() {
                 Some(value) => {
-                    println!(
-                        "{} and index of non is {},{}",
-                        value, non_terminal_index, text
-                    );
                     if is_terminal(value, &table) {
                         let terminal_index: usize = get_terminal_index(value, &table);
                         let production = table[terminal_index][non_terminal_index];
