@@ -24,6 +24,7 @@ pub fn parse(tokens: Vec<SyntaxToken>, table: [[&'static str; 33]; 22]) {
             _ => non_terminal_index = get_non_terminal_index(&text, &table),
         }
         let kind = token.kind;
+        let position = token.position;
         if line < token.line + 1 {
             line += 1;
             stack.push("S");
@@ -31,6 +32,7 @@ pub fn parse(tokens: Vec<SyntaxToken>, table: [[&'static str; 33]; 22]) {
         loop {
             match stack.pop() {
                 Some(value) => {
+                    //println!("value :{} , input: {} ", value, text);
                     if is_terminal(value, &table) {
                         let terminal_index: usize = get_terminal_index(value, &table);
                         let production = table[terminal_index][non_terminal_index];
@@ -40,6 +42,7 @@ pub fn parse(tokens: Vec<SyntaxToken>, table: [[&'static str; 33]; 22]) {
                                 stack.push(pro);
                             }
                         }
+                    //println!("{:?}", stack);
                     } else if is_non_terminal(value, &table) {
                         if text == value.to_string()
                             || (value == "id" && non_terminal_index == 26)
@@ -49,6 +52,13 @@ pub fn parse(tokens: Vec<SyntaxToken>, table: [[&'static str; 33]; 22]) {
                             break;
                         } else {
                             println!("error on Line {} And {}", line, value);
+                        }
+                    } else if value == "error" {
+                        if table[0][non_terminal_index] != "$" {
+                            println!(
+                                "error on Line {} And {} And Position {}",
+                                line, table[0][non_terminal_index], position
+                            );
                         }
                     }
                 }
