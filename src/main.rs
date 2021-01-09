@@ -8,7 +8,7 @@ use syntax_kinds::SyntaxKind;
 
 fn main() {
     let mut tokens: Vec<SyntaxToken> = lexer::get_tokens(
-        "Sahih a = 7 ,r  ^ \n agar { X &B 3 } [ e Jam 10 ^ ]    \n Begir(\"%d\",X )^ \n Benevis(\"Hello World)^",
+        "Sahih a = 7 ,r  ^ \n agar { X &B 3 } [ e Jam 10 ^ ]    \n Begir(\"%d\",X )^ \n Benevis(\"Hello World\")^ \n a = (((t Kam 4) Jam  YekiBala k  ) Zarb 7)^",
     );
     // for token in tokens {
     //     println!(

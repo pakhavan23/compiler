@@ -42,7 +42,7 @@ pub fn parse(tokens: Vec<SyntaxToken>, table: [[&'static str; 33]; 22]) {
                                 stack.push(pro);
                             }
                         }
-                    //println!("{:?}", stack);
+                        println!("{:?}", stack);
                     } else if is_non_terminal(value, &table) {
                         if text == value.to_string()
                             || (value == "id" && non_terminal_index == 26)
@@ -51,13 +51,13 @@ pub fn parse(tokens: Vec<SyntaxToken>, table: [[&'static str; 33]; 22]) {
                         {
                             break;
                         } else {
-                            println!("error on Line {} And {}", line, value);
+                            println!("error on Line {} And {} , {}", line, value, text);
                         }
                     } else if value == "error" {
                         if table[0][non_terminal_index] != "$" {
                             println!(
-                                "error on Line {} And {} And Position {}",
-                                line, table[0][non_terminal_index], position
+                                "error on Line {} And {} And Position {} , {}",
+                                line, table[0][non_terminal_index], position, text
                             );
                         }
                     }
