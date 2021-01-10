@@ -4,7 +4,7 @@
  */
 use crate::syntax_kinds::SyntaxKind;
 
-#[derive(Debug)]
+#[derive(PartialEq, PartialOrd, Debug)]
 pub struct SyntaxToken {
   pub line: i32,
   pub position: i32,

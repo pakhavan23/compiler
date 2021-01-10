@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, PartialEq, PartialOrd)]
 pub enum SyntaxKind {
   UnknownToken,
   WordlyToken,
@@ -37,7 +37,6 @@ pub enum SyntaxKind {
   FloatDefToken,           //  Ashari -> float
   IntegerDefToken,         //  Sahih -> int
   CharacterDefToken,       //  Harf -> char
-  DollaeSignToken,         //  $
 }
 
 impl SyntaxKind {
@@ -79,7 +78,6 @@ impl SyntaxKind {
       SyntaxKind::FloatDefToken => SyntaxKind::FloatDefToken,
       SyntaxKind::IntegerDefToken => SyntaxKind::IntegerDefToken,
       SyntaxKind::CharacterDefToken => SyntaxKind::CharacterDefToken,
-      SyntaxKind::DollaeSignToken => SyntaxKind::DollaeSignToken,
       _ => SyntaxKind::UnknownToken,
     }
   }
