@@ -4,15 +4,23 @@
 
 use crate::lexer::SyntaxToken;
 use crate::syntax_kinds::SyntaxKind;
+use std::fs::OpenOptions;
 
-pub fn parse(tokens: &mut Vec<SyntaxToken>, table: [[&'static str; 33]; 22], is_rejected: bool) {
+use std::io::prelude::*;
+use std::path::Path;
+
+pub fn parse(
+    tokens: &mut Vec<SyntaxToken>,
+    table: [[&'static str; 33]; 22],
+    is_rejected: bool,
+) -> bool {
     let mut stack: Vec<&'static str> = vec!["S"];
     let mut line: i32 = 1;
     let mut flag = true;
     let mut token_to_add: SyntaxToken = SyntaxToken {
-        text: ",".to_string(),
+        text: "^".to_string(),
         position: 1222 as i32,
-        kind: SyntaxKind::CloseBracketToken,
+        kind: SyntaxKind::CaretToken,
         line: 54545 as i32,
     };
     let mut index_to_add: usize = 0;
@@ -34,6 +42,9 @@ pub fn parse(tokens: &mut Vec<SyntaxToken>, table: [[&'static str; 33]; 22], is_
                 non_terminal_index = get_non_terminal_index(&string, &table)
             }
             _ => non_terminal_index = get_non_terminal_index(&text, &table),
+        }
+        if line < token.line - 1 {
+            line += 1;
         }
         loop {
             match stack.pop() {
@@ -57,11 +68,80 @@ pub fn parse(tokens: &mut Vec<SyntaxToken>, table: [[&'static str; 33]; 22], is_
                         {
                             break;
                         } else {
-                            println!("error on Line {} And {} , {}", line, value, text);
+                            flag = false;
+                            println!(
+                                "error on Line {} And {} , missing {}",
+                                line, &token.text, value
+                            );
+                            let message = format!("Error on line {} : Missing {}", line, value);
+                            log_error(message);
+                            let index = tokens.iter().position(|r| r == token).unwrap();
+                            index_to_add = index - 1;
+                            if value == "{" {
+                                token_to_add = SyntaxToken {
+                                    text: "{".to_string(),
+                                    position: position as i32,
+                                    kind: SyntaxKind::OpenBracketToken,
+                                    line: line as i32,
+                                };
+                            } else if value == "=" {
+                                token_to_add = SyntaxToken {
+                                    text: "=".to_string(),
+                                    position: position as i32,
+                                    kind: SyntaxKind::AssignToken,
+                                    line: line as i32,
+                                };
+                            } else if value == "(" {
+                                token_to_add = SyntaxToken {
+                                    text: "(".to_string(),
+                                    position: position as i32,
+                                    kind: SyntaxKind::ParenthesesOpenToken,
+                                    line: line as i32,
+                                };
+                            } else if value == ")" {
+                                token_to_add = SyntaxToken {
+                                    text: text.to_string(),
+                                    position: position as i32,
+                                    kind: SyntaxKind::ParenthesesCloseToken,
+                                    line: line as i32,
+                                };
+                            } else if value == "[" {
+                                token_to_add = SyntaxToken {
+                                    text: "[".to_string(),
+                                    position: position as i32,
+                                    kind: SyntaxKind::OpenSquareBracketToken,
+                                    line: line as i32,
+                                };
+                            } else if value == "]" {
+                                token_to_add = SyntaxToken {
+                                    text: "]".to_string(),
+                                    position: position as i32,
+                                    kind: SyntaxKind::CloseSquareBracketToken,
+                                    line: line as i32,
+                                };
+                            } else if value == "}" {
+                                token_to_add = SyntaxToken {
+                                    text: "}".to_string(),
+                                    position: position as i32,
+                                    kind: SyntaxKind::CloseBracketToken,
+                                    line: line as i32,
+                                };
+                            } else if value == "^" {
+                                token_to_add = SyntaxToken {
+                                    text: "^".to_string(),
+                                    position: position as i32,
+                                    kind: SyntaxKind::CaretToken,
+                                    line: line as i32,
+                                };
+                            }
+                            break;
                         }
                     } else if value == "error" {
                         flag = false;
-                        println!("error on Line {} And {} , {} Errrrr", line, value, text);
+                        println!(
+                            "error on Line {} And {} , {} Errrrr {}",
+                            line, value, text, table[0][non_terminal_index]
+                        );
                         let index = tokens.iter().position(|r| r == token).unwrap();
                         let mut j = index - 1;
                         index_to_add = index - 1;
@@ -69,7 +149,7 @@ pub fn parse(tokens: &mut Vec<SyntaxToken>, table: [[&'static str; 33]; 22], is_
                             j -= 1;
                         }
                         if table[0][non_terminal_index] == "num" {
-                            println!("{:?}, {}", &tokens[j].kind, tokens[j].position);
+                            println!("{:?}, {} , num", &tokens[j].kind, tokens[j].position);
                             match &tokens[j].kind {
                                 SyntaxKind::WordlyToken => {
                                     println!("error");
@@ -86,6 +166,8 @@ pub fn parse(tokens: &mut Vec<SyntaxToken>, table: [[&'static str; 33]; 22], is_
                                                 "error Expected = ,between number {} and {}",
                                                 text, tokens[j].text
                                             );
+                                            let message = format!("Error on line {} : Expected = , between number {} and variable name {}",line,text,tokens[j].text);
+                                            log_error(message);
                                             token_to_add = SyntaxToken {
                                                 text: "=".to_string(),
                                                 position: 0,
@@ -98,6 +180,8 @@ pub fn parse(tokens: &mut Vec<SyntaxToken>, table: [[&'static str; 33]; 22], is_
                                         | SyntaxKind::OpenSquareBracketToken
                                         | SyntaxKind::ParenthesesOpenToken => {
                                             println!("error Expected (Jam , Kam , Tagsim , Zarb , Bagimonde , &B , &BM , &K , &KM , &MM) ,between number {} and {}", text,tokens[j].text);
+                                            let message = format!("Error on line {} : Expected (Jam , Kam , Tagsim , Zarb , Bagimonde , &B , &BM , &K , &KM , &MM) ,between number {} and {}", line, text,tokens[j].text);
+                                            log_error(message);
                                             token_to_add = SyntaxToken {
                                                 text: "Jam".to_string(),
                                                 position: 0,
@@ -110,6 +194,8 @@ pub fn parse(tokens: &mut Vec<SyntaxToken>, table: [[&'static str; 33]; 22], is_
                                 }
                                 SyntaxKind::NumberToken => {
                                     println!("error Expected (Jam , Kam , Tagsim , Zarb , Bagimonde , &B , &BM , &K , &KM , &MM) , got number {}", text);
+                                    let message = format!("Error on line {} : Expected (Jam , Kam , Tagsim , Zarb , Bagimonde , &B , &BM , &K , &KM , &MM) ,between number {} and {}", line, text,tokens[j].text);
+                                    log_error(message);
                                     token_to_add = SyntaxToken {
                                         text: "Jam".to_string(),
                                         position: 0,
@@ -121,6 +207,11 @@ pub fn parse(tokens: &mut Vec<SyntaxToken>, table: [[&'static str; 33]; 22], is_
                                 | SyntaxKind::IntegerDefToken
                                 | SyntaxKind::FloatDefToken => {
                                     println!("error Expected id and '=' , got {}", text);
+                                    let message = format!(
+                                        "Error on line {} : Expected id and '=' , got {}",
+                                        line, text
+                                    );
+                                    log_error(message);
                                     token_to_add = SyntaxToken {
                                         text: "id".to_string(),
                                         position: 0,
@@ -131,12 +222,13 @@ pub fn parse(tokens: &mut Vec<SyntaxToken>, table: [[&'static str; 33]; 22], is_
                                 _ => flag = true,
                             }
                         } else if table[0][non_terminal_index] == "^" {
-                            println!("{:?}, {}", &tokens[j].kind, tokens[j].position);
                             match &tokens[j].kind {
                                 SyntaxKind::CharacterDefToken
                                 | SyntaxKind::IntegerDefToken
                                 | SyntaxKind::FloatDefToken => {
                                     println!("Error: Expected variable name after identifier (Ashari,Harf,Sahih)");
+                                    let message = format!("Error on line {} :Expected variable name after identifier (Ashari,Harf,Sahih)",line);
+                                    log_error(message);
                                     token_to_add = SyntaxToken {
                                         text: "id".to_string(),
                                         position: 0,
@@ -146,8 +238,13 @@ pub fn parse(tokens: &mut Vec<SyntaxToken>, table: [[&'static str; 33]; 22], is_
                                 }
                                 SyntaxKind::AssignToken => {
                                     println!("Error: Expected a value after '='");
+                                    let message = format!(
+                                        "Error on line {} : Expected a value after '='",
+                                        line
+                                    );
+                                    log_error(message);
                                     token_to_add = SyntaxToken {
-                                        text: "value".to_string(),
+                                        text: "30".to_string(),
                                         position: 0,
                                         line: 0,
                                         kind: SyntaxKind::NumberToken,
@@ -161,20 +258,32 @@ pub fn parse(tokens: &mut Vec<SyntaxToken>, table: [[&'static str; 33]; 22], is_
                                         "Error: Expected a value between {} and {}",
                                         tokens[j].text, text
                                     );
+                                    let message = format!(
+                                        "Error on line {} : Expected a value between {} and {}",
+                                        line, tokens[j].text, text
+                                    );
+                                    log_error(message);
                                     token_to_add = SyntaxToken {
-                                        text: "value".to_string(),
+                                        text: "30".to_string(),
                                         position: 0,
                                         line: 0,
                                         kind: SyntaxKind::NumberToken,
                                     };
                                 }
-                                _ => println!("!"),
+                                SyntaxKind::NumberToken | SyntaxKind::WordlyToken => {
+                                    token_to_add = SyntaxToken {
+                                        text: "^".to_string(),
+                                        position: 0,
+                                        line: 0,
+                                        kind: SyntaxKind::CaretToken,
+                                    };
+                                }
+                                _ => flag = true,
                             }
+                            break;
                         } else if table[0][non_terminal_index] == "id" {
-                            println!("{:?}, {}", &tokens[j].kind, tokens[j].position);
                             match &tokens[j].kind {
                                 SyntaxKind::WordlyToken => {
-                                    println!("error10");
                                     let mut t = j - 1;
                                     while &tokens[t].text == " " {
                                         t -= 1;
@@ -189,6 +298,11 @@ pub fn parse(tokens: &mut Vec<SyntaxToken>, table: [[&'static str; 33]; 22], is_
                                                 "error Expected ',' ,between number {} and {}",
                                                 text, tokens[j].text
                                             );
+                                            let message = format!(
+                                                "Error on line {} : Expected ',' ,between number {} and {}",
+                                                line, text,tokens[j].text
+                                            );
+                                            log_error(message);
                                             token_to_add = SyntaxToken {
                                                 text: ",".to_string(),
                                                 position: 0,
@@ -201,6 +315,11 @@ pub fn parse(tokens: &mut Vec<SyntaxToken>, table: [[&'static str; 33]; 22], is_
                                 }
                                 SyntaxKind::NumberToken => {
                                     println!("error Expected (Jam , Kam , Tagsim , Zarb , Bagimonde , &B , &BM , &K , &KM , &MM) , got number {}", text);
+                                    let message = format!(
+                                        "Error on line {} : Expected (Jam , Kam , Tagsim , Zarb , Bagimonde , &B , &BM , &K , &KM , &MM) , got number {}",
+                                        line, text
+                                    );
+                                    log_error(message);
                                     token_to_add = SyntaxToken {
                                         text: "Jam".to_string(),
                                         position: 0,
@@ -210,13 +329,27 @@ pub fn parse(tokens: &mut Vec<SyntaxToken>, table: [[&'static str; 33]; 22], is_
                                 }
                                 _ => flag = true,
                             }
+                        } else if table[0][non_terminal_index] == "Begir"
+                            || table[0][non_terminal_index] == "Benevis"
+                            || table[0][non_terminal_index] == "ta"
+                            || table[0][non_terminal_index] == "agar"
+                        {
+                            println!("Missing ^");
+                            let message = format!("Error on line {} : Missing ^", line);
+                            log_error(message);
+                            token_to_add = SyntaxToken {
+                                text: "^".to_string(),
+                                position: position as i32,
+                                kind: SyntaxKind::CaretToken,
+                                line: line as i32,
+                            };
                         }
                         break;
                     }
                 }
                 None => {
-                    let index = tokens.iter().position(|r| r.text == token.text).unwrap();
-                    if index != tokens.len() - 1 {
+                    let index = tokens.iter().position(|r| r == token).unwrap();
+                    if index <= tokens.len() - 1 {
                         stack.push("S")
                     }
                 }
@@ -233,6 +366,8 @@ pub fn parse(tokens: &mut Vec<SyntaxToken>, table: [[&'static str; 33]; 22], is_
         tokens.insert(index_to_add, token_to_add);
         parse(tokens, table, false);
     }
+
+    is_rejected
 }
 
 fn is_terminal(input: &'static str, table: &[[&'static str; 33]; 22]) -> bool {
@@ -275,4 +410,28 @@ fn get_non_terminal_index(input: &String, table: &[[&'static str; 33]; 22]) -> u
         }
     }
     index
+}
+
+fn log_error(message: String) {
+    let data_path = Path::new("errors.txt");
+    let mut file = OpenOptions::new()
+        .write(true)
+        .append(true)
+        .open(&data_path)
+        .unwrap();
+    writeln!(file, "{}", message);
+    // let mut file = match File::open(&data_path) {
+    //     Err(e) => panic!("Couldn't open!"),
+    //     Ok(file) => file,
+    // };
+
+    // match file.write_all(message.as_bytes()) {
+    //     Err(why) => panic!("couldn't write to {} ", why),
+    //     Ok(_) => println!("Success"),
+    // }
+    // let mut file_data = String::new();
+
+    // file.read_to_string(&mut file_data);
+
+    // println!("{}", file_data);
 }
