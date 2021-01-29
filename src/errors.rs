@@ -1,3 +1,5 @@
+/* A struct containing syntax errors */
+
 pub struct errors{
     missingCaret: "error: expected '^' at the end of the line",
     misplacedCaret: "error: move '^' to the end of the line",

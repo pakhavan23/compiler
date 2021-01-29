@@ -4,7 +4,7 @@
  */
 use crate::syntax_kinds::SyntaxKind;
 
-#[derive(Debug)]
+#[derive(PartialEq, PartialOrd, Debug)]
 pub struct SyntaxToken {
   pub line: i32,
   pub position: i32,
@@ -517,3 +517,4 @@ fn get_string_tokens(phrase: String, position: usize, line: usize) -> Vec<Syntax
   }
   tokens
 }
+

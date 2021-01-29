@@ -142,7 +142,7 @@ pub fn parsing_table() -> [[&'static str; 33]; 22] {
     table[14][24] = "B A`";
     table[16][24] = "C B`";
     table[18][24] = "F C`";
-    table[19][24] = "YekiBala F C`";
+    table[19][24] = "YekiBala C`";
     table[20][24] = "YekiBala F";
     table[1][25] = "E ^";
     table[10][25] = "T E`";
@@ -150,7 +150,7 @@ pub fn parsing_table() -> [[&'static str; 33]; 22] {
     table[14][25] = "B A`";
     table[16][25] = "C B`";
     table[18][25] = "F C`";
-    table[19][25] = "YekiPain F C`";
+    table[19][25] = "YekiPain C`";
     table[20][25] = "YekiPain F";
     table[1][26] = "E ^";
     table[5][26] = "Q N`";
