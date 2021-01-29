@@ -7,7 +7,7 @@ use lexer::SyntaxToken;
 
 fn main() {
     let mut tokens: Vec<SyntaxToken> = lexer::get_tokens(
-        "Ashari t =  2 ^ \n agar{ 5 &MM 5 } \n [ \n e Jam 10^ \n ] \n Begir(\"%d\",  X )^ \n Benevis(\"Hello World\")^ \n a = (((t Jam 4) Jam  YekiBala k  ) Zarb 7)^ \n ta { 5 &MM 7} [ \n U= 8^ \n ] ",
+        "Ashari t =  2 ^ \n agar { 5 &MM 5 } \n [ \n e Jam 10^ \n ] \n Begir(\"%d\",  X )^ \n Benevis(\"Hello World\")^ \n a = (((t Jam 4) Jam  YekiBala k  ) Zarb 7)^ \n ta { 5 &MM 7} [ \n U= 8^ \n ] ",
     );
 
     // for token in tokens {
