@@ -75,7 +75,10 @@ pub fn parse(
                 },
                 2 => match token.kind {
                     SyntaxKind::WhitespaceToken => p_state = 2,
-                    SyntaxKind::StringNumToken | SyntaxKind::StringToken => p_state = 2,
+                    SyntaxKind::StringNumToken
+                    | SyntaxKind::StringToken
+                    | SyntaxKind::StringFloatToken
+                    | SyntaxKind::StringCharToken => p_state = 2,
                     SyntaxKind::ParenthesesCloseToken => p_state = 5,
                     SyntaxKind::CommaToken => p_state = 3,
                     _ => println!("Error2"),

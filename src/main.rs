@@ -7,8 +7,7 @@ mod syntax_kinds;
 use lexer::SyntaxToken;
 
 fn main() {
-    let mut tokens: Vec<SyntaxToken> =
-        lexer::get_tokens("Sahih c , o  ^ \n   agar { c Jam 10 &B \'c\' } [ e= 10^]");
+    let mut tokens: Vec<SyntaxToken> = lexer::get_tokens("Sahih y ^ Begir(\"%d\",&y)^");
     // let mut tokens: Vec<SyntaxToken> = lexer::get_tokens(
     // "Ashari t =  2 ^ \n agar { 5 &MM 5 } \n [ \n e Jam 10^ \n ] \n Begir(\"%d\",  &X )^ \n Benevis(\"Hello World\")^ \n a = (((t Jam 4) Jam  YekiBala k  ) Zarb 7)^ \n ta { 5 &MM 7} [ \n U= 8^ \n ] ",
     // );

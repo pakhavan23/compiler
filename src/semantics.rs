@@ -16,6 +16,9 @@ struct Symbol {
 pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
     let mut flag_condition = false;
 
+    let mut check_1: Vec<&str> = vec![];
+    let mut check_2: Vec<&str> = vec![];
+
     let mut symbol_tab: Vec<Symbol> = vec![];
     let mut _types: &str = "type";
     let mut _name: &str = "name";
@@ -58,7 +61,7 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
                     state = 6;
                 }
                 SyntaxKind::ScanToken => {
-                    state = 99;
+                    state = 13;
                 }
                 SyntaxKind::ConditionToken | SyntaxKind::LoopToken => {
                     state = 100;
@@ -212,41 +215,36 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
             },
             6 => match token.kind {
                 SyntaxKind::ParenthesesOpenToken => {
-                    state = 7;
+                    state = 8;
                 }
                 _ => println!("6 , {:?}", token.kind),
             },
-            7 => match token.kind {
-                SyntaxKind::QuotationToken => {
+            8 => match token.kind {
+                SyntaxKind::StringNumToken
+                | SyntaxKind::StringCharToken
+                | SyntaxKind::StringFloatToken => {
+                    check_1.push(&token.text);
                     state = 8;
                 }
-                _ => println!("7 , {:?}", token.kind),
-            },
-            8 => match token.kind {
-                SyntaxKind::StringNumToken => {
-                    print_sign = &token.text;
-                    state = 9;
+                SyntaxKind::StringToken => state = 8,
+                SyntaxKind::CommaToken => state = 9,
+                SyntaxKind::ParenthesesCloseToken => {
+                    check(&mut check_1, &mut check_2, &symbol_tab);
+                    state = 0;
                 }
                 _ => println!("8 , {:?}", token.kind),
             },
             9 => match token.kind {
-                SyntaxKind::QuotationToken => {
-                    state = 10;
+                SyntaxKind::WordlyToken => {
+                    check_2.push(&token.text);
+                    state = 9
+                }
+                SyntaxKind::CommaToken => state = 9,
+                SyntaxKind::ParenthesesCloseToken => {
+                    check(&mut check_1, &mut check_2, &symbol_tab);
+                    state = 0;
                 }
                 _ => println!("9 , {:?}", token.kind),
-            },
-            10 => match token.kind {
-                SyntaxKind::CommaToken => {
-                    state = 11;
-                }
-                _ => println!("10 , {:?}", token.kind),
-            },
-            11 => match token.kind {
-                SyntaxKind::WordlyToken => {
-                    // check for existing if ok  then ( check for type and print sign mismatch type => println!("error: use to print variables with type ");  ) else err
-                    // err  println!("error: variable is not declared");
-                }
-                _ => println!("11 , {:?}", token.kind),
             },
             12 => match token.kind {
                 SyntaxKind::WordlyToken => {
@@ -254,6 +252,56 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
                     state = 2;
                 }
                 _ => println!("12, {:?}", token.kind),
+            },
+            13 => match token.kind {
+                SyntaxKind::ParenthesesOpenToken => {
+                    state = 14;
+                }
+                _ => println!("13 , {:?}", token.kind),
+            },
+            14 => match token.kind {
+                SyntaxKind::StringNumToken
+                | SyntaxKind::StringCharToken
+                | SyntaxKind::StringFloatToken => {
+                    check_1.push(&token.text);
+                    state = 15;
+                }
+                _ => println!("14 , {:?}", token.kind),
+            },
+            15 => match token.kind {
+                SyntaxKind::CommaToken => {
+                    state = 16;
+                }
+                _ => println!("15 , {:?}", token.kind),
+            },
+            16 => match token.kind {
+                SyntaxKind::WordlyToken => {
+                    if token.text.contains("&") {
+                        state = 18;
+                        let name: Vec<&str> = token.text.split("&").collect();
+                        for n in name {
+                            if n != "" {
+                                check_2.push(n);
+                            }
+                        }
+                    } else if token.text == "&".to_string() {
+                        state = 17;
+                    }
+                }
+                _ => println!("16 , {:?}", token.kind),
+            },
+            17 => match token.kind {
+                SyntaxKind::WordlyToken => {
+                    state = 18;
+                }
+                _ => println!("OK"),
+            },
+            18 => match token.kind {
+                SyntaxKind::ParenthesesCloseToken => {
+                    check(&mut check_1, &mut check_2, &symbol_tab);
+                    state = 0;
+                }
+                _ => println!("Ok"),
             },
             100 => match token.kind {
                 SyntaxKind::WordlyToken => {
@@ -420,4 +468,27 @@ fn get_type(input: &str, symbol_tab: &Vec<Symbol>) -> String {
         }
     }
     answer
+}
+
+fn check(list_1: &mut Vec<&str>, list_2: &mut Vec<&str>, symbol_tab: &Vec<Symbol>) {
+    if list_1.len() == list_2.len() {
+        loop {
+            match list_1.pop() {
+                Some(value_1) => match list_2.pop() {
+                    Some(value_2) => {
+                        if value_1 == "%d" && check_type(value_2, "int", &symbol_tab) {
+                        } else if value_1 == "%f" && check_type(value_2, "float", &symbol_tab) {
+                        } else if value_1 == "%c" && check_type(value_2, "char", &symbol_tab) {
+                        } else {
+                            println!("Error:{} and {} does not match", value_1, value_2);
+                        }
+                    }
+                    None => break,
+                },
+                None => break,
+            }
+        }
+    } else {
+        println!("Ridi");
+    }
 }
