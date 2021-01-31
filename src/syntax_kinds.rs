@@ -1,4 +1,4 @@
-#[derive(Debug, PartialEq, PartialOrd)]
+#[derive(PartialEq, PartialOrd, Debug)]
 pub enum SyntaxKind {
   UnknownToken,
   WordlyToken,
@@ -30,6 +30,8 @@ pub enum SyntaxKind {
   ParenthesesCloseToken,   //  )
   CommaToken,              //  ,
   StringNumToken,          //  %d
+  StringCharToken,         //  %c
+  StringFloatToken,        //  %f
   PrintToken,              //  Benevis -> printf
   ScanToken,               //  Begir -> scanf
   ConditionToken,          //  agar -> if
@@ -43,6 +45,8 @@ impl SyntaxKind {
   pub fn copy(&self) -> SyntaxKind {
     match self {
       SyntaxKind::StringNumToken => SyntaxKind::StringNumToken,
+      SyntaxKind::StringCharToken => SyntaxKind::StringCharToken,
+      SyntaxKind::StringFloatToken => SyntaxKind::StringFloatToken,
       SyntaxKind::SingleQouteToken => SyntaxKind::SingleQouteToken,
       SyntaxKind::CharToken => SyntaxKind::CharToken,
       SyntaxKind::ParenthesesCloseToken => SyntaxKind::ParenthesesCloseToken,

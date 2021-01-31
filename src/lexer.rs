@@ -451,10 +451,20 @@ fn get_syntax(phrase: String, position: usize, line: usize) -> Vec<SyntaxToken> 
 fn get_string_tokens(phrase: String, position: usize, line: usize) -> Vec<SyntaxToken> {
   let mut tokens: Vec<SyntaxToken> = vec![];
   let mut is_syntax = false;
-  let syntax_arr = [SyntaxDefiner {
-    text: "%d".to_string(),
-    kind: SyntaxKind::StringNumToken,
-  }];
+  let syntax_arr = [
+    SyntaxDefiner {
+      text: "%d".to_string(),
+      kind: SyntaxKind::StringNumToken,
+    },
+    SyntaxDefiner {
+      text: "%c".to_string(),
+      kind: SyntaxKind::StringCharToken,
+    },
+    SyntaxDefiner {
+      text: "%f".to_string(),
+      kind: SyntaxKind::StringFloatToken,
+    },
+  ];
 
   for syntax in syntax_arr.iter() {
     if phrase.contains(&syntax.text) {
@@ -517,4 +527,3 @@ fn get_string_tokens(phrase: String, position: usize, line: usize) -> Vec<Syntax
   }
   tokens
 }
-
