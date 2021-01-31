@@ -440,6 +440,14 @@ fn get_string_tokens(phrase: String, position: usize, line: usize) -> Vec<Syntax
     SyntaxDefiner {
       text: "%d".to_string(),
       kind: SyntaxKind::StringNumToken
+    },
+    SyntaxDefiner {
+      text: "%c".to_string(),
+      kind: SyntaxKind::StringCharToken
+    },
+    SyntaxDefiner {
+      text: "%f".to_string(),
+      kind: SyntaxKind::StringFloatToken
     }
   ];
 
