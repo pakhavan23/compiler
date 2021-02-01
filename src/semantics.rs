@@ -4,6 +4,10 @@
 
 use crate::lexer::SyntaxToken;
 use crate::syntax_kinds::SyntaxKind;
+use std::fs::OpenOptions;
+
+use std::io::prelude::*;
+use std::path::Path;
 
 #[derive(PartialEq, PartialOrd, Debug)]
 struct Symbol {
@@ -55,6 +59,10 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
                     } else {
                         state = 0;
                         println!("error: variable {} is not declared", token.text);
+                        let message = format!(
+                            "Error on line {} : variable {} is not declared",
+                            token.line, token.text
+                        );
                     }
                 }
                 SyntaxKind::PrintToken => {
@@ -74,6 +82,11 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
                     // println!("error: variable had been declared before");
                     if check_existing(&token.text, &symbol_tab) {
                         println!("error: variable had been declared before");
+                        let message = format!(
+                            "Error on line {} : Variable {} had been declared before",
+                            token.line, token.text
+                        );
+                        log_error(message);
                         state = 0;
                     } else {
                         _name = &token.text;
@@ -117,9 +130,14 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
                 | SyntaxKind::DecrementToken => {
                     if _types == "char" {
                         println!(
-                            "error: can't perform arithmetic operations on 'Harf' On Lin : {}",
+                            "error: can't perform arithmetic operations on 'Harf' On Line : {}",
                             token.line
                         );
+                        let message = format!(
+                            "Error on line {} : Can't perform arithmetic operations on 'Harf'",
+                            token.line
+                        );
+                        log_error(message);
                     } else {
                         state = 5;
                     }
@@ -135,7 +153,9 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
                         _value = &token.text;
                         state = 4;
                     } else {
-                        println!("error: types mismatched \n variable doesn't have a value matched with the identifier");
+                        println!("error: types mismatched \nvariable doesn't have a value matched with the identifier");
+                        let message = format!("Error on line {} : types mismatched \nvariable doesn't have a value matched with the identifier",token.text);
+                        log_error(message);
                         state = 0;
                     }
                 }
@@ -145,6 +165,9 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
                         state = 4;
                     } else {
                         println!("error: types mismatched \n variable doesn't have a value matched with the identifier");
+                        let message = format!("Error on line {} : types mismatched \nvariable doesn't have a value matched with the identifier",token.text);
+                        log_error(message);
+                        state = 0;
                     }
                 }
                 SyntaxKind::WordlyToken => {
@@ -155,6 +178,10 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
                         state = 4;
                     } else {
                         println!("error: variable {} is not declared", token.text);
+                        let message = format!(
+                            "Error on line {} : Variable {} is not declared",
+                            token.line, token.text
+                        );
                         state = 0;
                     }
                 }
@@ -170,6 +197,11 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
                 | SyntaxKind::DecrementToken => {
                     if _types == "char" {
                         println!("error: can't perform arithmetic operations on 'Harf'");
+                        let message = format!(
+                            "Error on line {} : can't perform arithmetic operations on 'Harf'",
+                            token.line
+                        );
+                        log_error(message);
                     }
                     state = 0;
                 }
@@ -196,23 +228,32 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
                 }
                 _ => println!("4 , {:?}", token.kind),
             },
-            5 => match token.kind {
-                SyntaxKind::WordlyToken => {
-                    // ckeck for existing if ok (then check for it type == char if ok -> error) else  err
-                    // err => println!("error: variable {} is not declared", token.text); state =0
-                    // error => println!("error: can't perform arithmetic operations on 'Harf'"); state =0
-                    if check_existing(&token.text, &symbol_tab) {
-                        if check_type(&token.text, "char", &symbol_tab) {
-                            println!("error: can't perform arithmetic operations on 'Harf' HERE");
+            5 => {
+                match token.kind {
+                    SyntaxKind::WordlyToken => {
+                        // ckeck for existing if ok (then check for it type == char if ok -> error) else  err
+                        // err => println!("error: variable {} is not declared", token.text); state =0
+                        // error => println!("error: can't perform arithmetic operations on 'Harf'"); state =0
+                        if check_existing(&token.text, &symbol_tab) {
+                            if check_type(&token.text, "char", &symbol_tab) {
+                                println!("error: can't perform arithmetic operations on 'Harf'");
+                                let message = format!("Error on line {} : can't perform arithmetic operations on 'Harf'",token.line);
+                                log_error(message);
+                                state = 0;
+                            }
+                        } else {
+                            println!("error: variable {} is not declared", token.text);
+                            let message = format!(
+                                "Error on line {} : variable {} is not declared",
+                                token.line, token.text
+                            );
+                            log_error(message);
                             state = 0;
                         }
-                    } else {
-                        println!("error: variable {} is not declared", token.text);
-                        state = 0;
                     }
+                    _ => println!("5 , {:?}", token.kind),
                 }
-                _ => println!("5 , {:?}", token.kind),
-            },
+            }
             6 => match token.kind {
                 SyntaxKind::ParenthesesOpenToken => {
                     state = 8;
@@ -345,6 +386,8 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
                 }
                 SyntaxKind::CloseBracketToken => {
                     println!("Error: Expected Boolean");
+                    let message = format!("Error on line {} : Expected Boolean", token.line);
+                    log_error(message);
                     state = 0;
                 }
                 _ => println!("101 , {:?}", token.kind),
@@ -353,6 +396,8 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
                 SyntaxKind::EqualToken => state = 104,
                 SyntaxKind::CloseBracketToken => {
                     println!("Error: Expected Boolean");
+                    let message = format!("Error on line {} : Expected Boolean", token.line);
+                    log_error(message);
                     state = 0;
                 }
                 _ => println!("Error 102"),
@@ -365,6 +410,11 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
                         state = 106;
                     } else {
                         println!("error: 'Number' should be compared with 'Number'");
+                        let message = format!(
+                            "Error on line {} : 'Number' should be compared with 'Number'",
+                            token.line
+                        );
+                        log_error(message);
                         state = 0;
                     }
                 }
@@ -376,6 +426,11 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
                     if check_type(&token.text, "char", &symbol_tab) {
                     } else {
                         println!("error: 'Harf' should be compared with 'Harf'");
+                        let message = format!(
+                            "Error on line {} : 'Harf' should be compared with 'Harf'",
+                            token.line
+                        );
+                        log_error(message);
                     }
                     state = 0;
                 }
@@ -389,12 +444,19 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
                     {
                     } else {
                         println!("Error:Arithmetic 'Harf'");
+                        let message = format!("Error on line {} : Arithmetic 'Harf'", token.line);
+                        log_error(message);
                     }
                     state = 106;
                 }
                 SyntaxKind::NumberToken => state = 106,
                 SyntaxKind::CharToken => {
                     println!("Error: Arithmetic Comparison 'Harf'");
+                    let message = format!(
+                        "Error on line {} : Arithmetic Comparison 'Harf'",
+                        token.line
+                    );
+                    log_error(message);
                     state = 0;
                 }
                 _ => println!("Error105"),
@@ -419,6 +481,8 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
                     if flag_condition {
                         flag_condition = false;
                     } else {
+                        let message = format!("Error on line {} : Expected Boolean", token.line);
+                        log_error(message);
                         println!("Error:Expected Boolean")
                     }
                     state = 0;
@@ -481,6 +545,11 @@ fn check(list_1: &mut Vec<&str>, list_2: &mut Vec<&str>, symbol_tab: &Vec<Symbol
                         } else if value_1 == "%c" && check_type(value_2, "char", &symbol_tab) {
                         } else {
                             println!("Error:{} and {} does not match", value_1, value_2);
+                            let message = format!(
+                                "Error on Brenevis : {} and {} does not match",
+                                value_1, value_2
+                            );
+                            log_error(message);
                         }
                     }
                     None => break,
@@ -491,4 +560,28 @@ fn check(list_1: &mut Vec<&str>, list_2: &mut Vec<&str>, symbol_tab: &Vec<Symbol
     } else {
         println!("Ridi");
     }
+}
+
+fn log_error(message: String) {
+    let data_path = Path::new("errors.txt");
+    let mut file = OpenOptions::new()
+        .write(true)
+        .append(true)
+        .open(&data_path)
+        .unwrap();
+    writeln!(file, "{}", message);
+    // let mut file = match File::open(&data_path) {
+    //     Err(e) => panic!("Couldn't open!"),
+    //     Ok(file) => file,
+    // };
+
+    // match file.write_all(message.as_bytes()) {
+    //     Err(why) => panic!("couldn't write to {} ", why),
+    //     Ok(_) => println!("Success"),
+    // }
+    // let mut file_data = String::new();
+
+    // file.read_to_string(&mut file_data);
+
+    // println!("{}", file_data);
 }
