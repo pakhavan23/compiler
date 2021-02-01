@@ -187,7 +187,7 @@ pub fn parsing_table() -> [[&'static str; 33]; 24] {
     table[1][29] = "G ^";
     table[4][29] = "Benevis ( D O )";
     table[1][30] = "G ^";
-    table[4][30] = "Begir (  str , id )";
+    table[4][30] = "Begir (  D O )";
     table[6][31] = ", Q N`";
     table[8][31] = " ";
     table[11][31] = " ";

@@ -28,7 +28,6 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
     let mut _name: &str = "name";
     let mut _value: &str = "value";
     let mut _scope: &str = "scope";
-    let mut print_sign: &str = "print_sign";
     let mut state: i32 = 0;
     for token in &*tokens {
         match &token.kind {
@@ -61,15 +60,13 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
                         println!("error: variable {} is not declared", token.text);
                         let message = format!(
                             "Error on line {} : variable {} is not declared",
-                            token.line, token.text
+                            token.line + 1,
+                            token.text
                         );
                     }
                 }
-                SyntaxKind::PrintToken => {
+                SyntaxKind::PrintToken | SyntaxKind::ScanToken => {
                     state = 6;
-                }
-                SyntaxKind::ScanToken => {
-                    state = 13;
                 }
                 SyntaxKind::ConditionToken | SyntaxKind::LoopToken => {
                     state = 100;
@@ -84,7 +81,8 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
                         println!("error: variable had been declared before");
                         let message = format!(
                             "Error on line {} : Variable {} had been declared before",
-                            token.line, token.text
+                            token.line + 1,
+                            token.text
                         );
                         log_error(message);
                         state = 0;
@@ -131,11 +129,11 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
                     if _types == "char" {
                         println!(
                             "error: can't perform arithmetic operations on 'Harf' On Line : {}",
-                            token.line
+                            token.line + 1
                         );
                         let message = format!(
                             "Error on line {} : Can't perform arithmetic operations on 'Harf'",
-                            token.line
+                            token.line + 1
                         );
                         log_error(message);
                     } else {
@@ -154,7 +152,7 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
                         state = 4;
                     } else {
                         println!("error: types mismatched \nvariable doesn't have a value matched with the identifier");
-                        let message = format!("Error on line {} : types mismatched \nvariable doesn't have a value matched with the identifier",token.text);
+                        let message = format!("Error on line {} : types mismatched \nvariable doesn't have a value matched with the identifier",token.line + 1);
                         log_error(message);
                         state = 0;
                     }
@@ -180,7 +178,8 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
                         println!("error: variable {} is not declared", token.text);
                         let message = format!(
                             "Error on line {} : Variable {} is not declared",
-                            token.line, token.text
+                            token.line + 1,
+                            token.text
                         );
                         state = 0;
                     }
@@ -199,7 +198,7 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
                         println!("error: can't perform arithmetic operations on 'Harf'");
                         let message = format!(
                             "Error on line {} : can't perform arithmetic operations on 'Harf'",
-                            token.line
+                            token.line + 1
                         );
                         log_error(message);
                     }
@@ -237,7 +236,7 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
                         if check_existing(&token.text, &symbol_tab) {
                             if check_type(&token.text, "char", &symbol_tab) {
                                 println!("error: can't perform arithmetic operations on 'Harf'");
-                                let message = format!("Error on line {} : can't perform arithmetic operations on 'Harf'",token.line);
+                                let message = format!("Error on line {} : can't perform arithmetic operations on 'Harf'",token.line + 1);
                                 log_error(message);
                                 state = 0;
                             }
@@ -245,7 +244,8 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
                             println!("error: variable {} is not declared", token.text);
                             let message = format!(
                                 "Error on line {} : variable {} is not declared",
-                                token.line, token.text
+                                token.line + 1,
+                                token.text
                             );
                             log_error(message);
                             state = 0;
@@ -386,7 +386,7 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
                 }
                 SyntaxKind::CloseBracketToken => {
                     println!("Error: Expected Boolean");
-                    let message = format!("Error on line {} : Expected Boolean", token.line);
+                    let message = format!("Error on line {} : Expected Boolean", token.line + 1);
                     log_error(message);
                     state = 0;
                 }
@@ -396,7 +396,7 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
                 SyntaxKind::EqualToken => state = 104,
                 SyntaxKind::CloseBracketToken => {
                     println!("Error: Expected Boolean");
-                    let message = format!("Error on line {} : Expected Boolean", token.line);
+                    let message = format!("Error on line {} : Expected Boolean", token.line + 1);
                     log_error(message);
                     state = 0;
                 }
@@ -412,7 +412,7 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
                         println!("error: 'Number' should be compared with 'Number'");
                         let message = format!(
                             "Error on line {} : 'Number' should be compared with 'Number'",
-                            token.line
+                            token.line + 1
                         );
                         log_error(message);
                         state = 0;
@@ -428,7 +428,7 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
                         println!("error: 'Harf' should be compared with 'Harf'");
                         let message = format!(
                             "Error on line {} : 'Harf' should be compared with 'Harf'",
-                            token.line
+                            token.line + 1
                         );
                         log_error(message);
                     }
@@ -444,7 +444,8 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
                     {
                     } else {
                         println!("Error:Arithmetic 'Harf'");
-                        let message = format!("Error on line {} : Arithmetic 'Harf'", token.line);
+                        let message =
+                            format!("Error on line {} : Arithmetic 'Harf'", token.line + 1);
                         log_error(message);
                     }
                     state = 106;
@@ -454,7 +455,7 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
                     println!("Error: Arithmetic Comparison 'Harf'");
                     let message = format!(
                         "Error on line {} : Arithmetic Comparison 'Harf'",
-                        token.line
+                        token.line + 1
                     );
                     log_error(message);
                     state = 0;
@@ -481,7 +482,8 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
                     if flag_condition {
                         flag_condition = false;
                     } else {
-                        let message = format!("Error on line {} : Expected Boolean", token.line);
+                        let message =
+                            format!("Error on line {} : Expected Boolean", token.line + 1);
                         log_error(message);
                         println!("Error:Expected Boolean")
                     }
