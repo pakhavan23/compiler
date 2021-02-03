@@ -441,7 +441,11 @@ fn get_non_terminal_index(input: &String, table: &[[&'static str; 33]; 24]) -> u
 }
 
 fn log_error(message: String) {
-    let data_path = Path::new("errors.txt");
+    let args: Vec<String> = std::env::args().collect();
+    let p = String::from("errors.txt");
+    let mut s = String::from(&args[2]);
+    s.push_str(&p);
+    let data_path = std::path::Path::new(&s);
     let mut file = OpenOptions::new()
         .write(true)
         .append(true)

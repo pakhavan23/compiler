@@ -11,7 +11,9 @@ use std::fs::File;
 use std::io::Write;
 
 fn main() {
-  let content = fs::read_to_string("content.txt").expect("Something went wrong reading the file");
+  let args: Vec<String> = std::env::args().collect();
+  println!("{}", args[2]);
+  let content = fs::read_to_string(args[1].to_string()).expect("Something went wrong reading the file");
 
   let mut tokens: Vec<SyntaxToken> = lexer::get_tokens(&content);
 
@@ -19,10 +21,14 @@ fn main() {
   let next: bool = parser::parse(&mut tokens, table, true);
   if next {
     semantics::symbol_tab_filler(&mut tokens);
-    let mut file = std::fs::File::create("run.c").expect("create file failed");
+    let p = String::from("run.c");
+    let mut s = String::from(&args[2]);
+    s.push_str(&p);
+    let data_path = std::path::Path::new(&s);
+    let mut file = std::fs::File::create(data_path).expect("create file failed");
     file.write_all(c_convertor::convert_to_c(tokens).as_bytes()).expect("write failed");
-    std::io::stdin().read_line(&mut String::new()).unwrap();
+    //std::io::stdin().read_line(&mut String::new()).unwrap();
   } else {
-    std::io::stdin().read_line(&mut String::new()).unwrap();
+    //std::io::stdin().read_line(&mut String::new()).unwrap();
   }
 }
