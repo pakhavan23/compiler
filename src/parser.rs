@@ -43,7 +43,13 @@ pub fn parse(
             SyntaxKind::WhitespaceToken
             | SyntaxKind::QuotationToken
             | SyntaxKind::SingleQouteToken => continue,
-            SyntaxKind::WordlyToken => non_terminal_index = get_non_terminal_index(&id, &table),
+            SyntaxKind::WordlyToken => {
+                if token.text == "\r" {
+                    continue;
+                } else {
+                    non_terminal_index = get_non_terminal_index(&id, &table);
+                }
+            }
             SyntaxKind::NumberToken => non_terminal_index = get_non_terminal_index(&num, &table),
             SyntaxKind::StringToken
             | SyntaxKind::StringNumToken

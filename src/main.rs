@@ -5,18 +5,24 @@ mod semantics;
 mod syntax_kinds;
 
 use lexer::SyntaxToken;
+use std::fs;
+use std::fs::File;
+use std::io::Write;
 
 fn main() {
-    let mut tokens: Vec<SyntaxToken> =
-        lexer::get_tokens("Sahih y =1^ Begir(\"%d\",&y)^ \n Benevis(\"%d %d Hello\",y,x)^");
+    let mut tokens: Vec<SyntaxToken> = lexer::get_tokens("Sahih x^\n Begir(\"%d\",&x)^ ");
     // let mut tokens: Vec<SyntaxToken> = lexer::get_tokens(
     // "Ashari t =  2 ^ \n agar { 5 &MM 5 } \n [ \n e Jam 10^ \n ] \n Begir(\"%d\",  &X )^ \n Benevis(\"Hello World\")^ \n a = (((t Jam 4) Jam  YekiBala k  ) Zarb 7)^ \n ta { 5 &MM 7} [ \n U= 8^ \n ] ",
     // );
+
+    // let contents =
+    //     fs::read_to_string("content.txt").expect("Something went wrong reading the file");
+    // let mut tokens: Vec<SyntaxToken> = lexer::get_tokens(&contents);
+
+    // println!("{}", contents);
+
     // for token in &tokens {
-    //     println!(
-    //         "position: {} line: {} text: {} kind: {:?}",
-    //         token.position, token.line, token.text, token.kind
-    //     );
+    //     println!("text: \"{}\" \n kind: {:?}", token.text, token.kind);
     // }
     let table = parsing_table::parsing_table();
     let next: bool = parser::parse(&mut tokens, table, true);

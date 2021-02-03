@@ -277,7 +277,12 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
             },
             9 => match token.kind {
                 SyntaxKind::WordlyToken => {
-                    check_2.push(&token.text);
+                    if token.text.contains("&") {
+                        let v: Vec<&str> = token.text.split("&").collect();
+                        check_2.push(v[1]);
+                    } else {
+                        check_2.push(&token.text);
+                    }
                     state = 9
                 }
                 SyntaxKind::CommaToken => state = 9,
@@ -542,9 +547,9 @@ fn check(list_1: &mut Vec<&str>, list_2: &mut Vec<&str>, symbol_tab: &Vec<Symbol
             match list_1.pop() {
                 Some(value_1) => match list_2.pop() {
                     Some(value_2) => {
-                        if value_1 == "%d" && check_type(value_2, "int", &symbol_tab) {
-                        } else if value_1 == "%f" && check_type(value_2, "float", &symbol_tab) {
-                        } else if value_1 == "%c" && check_type(value_2, "char", &symbol_tab) {
+                        if value_1 == "%d" && check_type(value_2, "int", symbol_tab) {
+                        } else if value_1 == "%f" && check_type(value_2, "float", symbol_tab) {
+                        } else if value_1 == "%c" && check_type(value_2, "char", symbol_tab) {
                         } else {
                             println!("Error:{} and {} does not match", value_1, value_2);
                             let message = format!(
