@@ -58,6 +58,8 @@ fn lexer(text: &str) -> Vec<SyntaxToken> {
           line: i as i32,
         };
         tokens.push(token);
+      } else if chars_vec[position] == '\r' {
+        
       } else if chars_vec[position] == '=' {
         let token = SyntaxToken {
           text: chars_vec[position].to_string(),

@@ -1,6 +1,6 @@
-pub fn parsing_table() -> [[&'static str; 33]; 24] {
+pub fn parsing_table() -> [[&'static str; 33]; 25] {
     /* function that creates the parsing table */
-    let mut table = [["error"; 33]; 24];
+    let mut table = [["error"; 33]; 25];
 
     /* defining non terminals of the table */
     table[0][0] = "null";
@@ -27,6 +27,7 @@ pub fn parsing_table() -> [[&'static str; 33]; 24] {
     table[21][0] = "H";
     table[22][0] = "D";
     table[23][0] = "O";
+    table[24][0] = "J";
 
     /* defining terminals of the table */
     table[0][1] = "[";
@@ -184,8 +185,9 @@ pub fn parsing_table() -> [[&'static str; 33]; 24] {
     table[20][28] = "H";
     table[21][28] = "str";
     table[22][28] = "str D";
+    table[24][28] = "str J";
     table[1][29] = "G ^";
-    table[4][29] = "Benevis ( D O )";
+    table[4][29] = "Benevis ( J O )";
     table[1][30] = "G ^";
     table[4][30] = "Begir (  D O )";
     table[6][31] = ", Q N`";

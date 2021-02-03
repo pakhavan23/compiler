@@ -7,7 +7,6 @@ use crate::syntax_kinds::SyntaxKind;
 use std::fs::OpenOptions;
 
 use std::io::prelude::*;
-use std::path::Path;
 
 #[derive(PartialEq, PartialOrd, Debug)]
 struct Symbol {
@@ -20,15 +19,18 @@ struct Symbol {
 pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
     let mut flag_condition = false;
 
+    // List of %d or %f or %c
     let mut check_1: Vec<&str> = vec![];
+    // list of Values for %d , %f , %c
     let mut check_2: Vec<&str> = vec![];
 
+    // Symbol Table
     let mut symbol_tab: Vec<Symbol> = vec![];
     let mut _types: &str = "type";
     let mut _name: &str = "name";
     let mut _value: &str = "value";
-    let mut _scope: &str = "scope";
-    let mut state: i32 = 0;
+    let mut _scope: &str = "main";
+    let mut state: i32 = 0; // Start
     for token in &*tokens {
         match &token.kind {
             SyntaxKind::WhitespaceToken
@@ -63,11 +65,13 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
                             token.line + 1,
                             token.text
                         );
+                        log_error(message);
                     }
                 }
                 SyntaxKind::PrintToken | SyntaxKind::ScanToken => {
                     state = 6;
                 }
+                SyntaxKind::IncrementToken | SyntaxKind::DecrementToken => state = 200,
                 SyntaxKind::ConditionToken | SyntaxKind::LoopToken => {
                     state = 100;
                 }
@@ -424,6 +428,15 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
                     }
                 }
                 SyntaxKind::NumberToken => state = 0,
+                SyntaxKind::CharToken => {
+                    println!("error: 'Number' should be compared with 'Number'");
+                    let message = format!(
+                        "Error on line {} : 'Number' should be compared with 'Number'",
+                        token.line + 1
+                    );
+                    log_error(message);
+                    state = 0;
+                }
                 _ => println!("Error 103"),
             },
             104 => match token.kind {
@@ -440,6 +453,15 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
                     state = 0;
                 }
                 SyntaxKind::CharToken => state = 0,
+                SyntaxKind::NumberToken => {
+                    println!("error: 'Harf' should be compared with 'Harf'");
+                    let message = format!(
+                        "Error on line {} : 'Harf' should be compared with 'Harf'",
+                        token.line + 1
+                    );
+                    log_error(message);
+                    state = 0;
+                }
                 _ => println!("Error 104"),
             },
             105 => match token.kind {
@@ -495,6 +517,32 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
                     state = 0;
                 }
                 _ => println!("Error106"),
+            },
+            200 => match token.kind {
+                SyntaxKind::WordlyToken => {
+                    if check_type(&token.text, "char", &symbol_tab) {
+                        let message = format!(
+                            "Error on line {} : No Arithmetic Operation on 'Harf'",
+                            token.line + 1
+                        );
+                        log_error(message);
+                    }
+                    state = 201;
+                }
+                _ => state = 0,
+            },
+            201 => match token.kind {
+                SyntaxKind::AdditionToken
+                | SyntaxKind::ModulusToken
+                | SyntaxKind::MultiplicationToken
+                | SyntaxKind::SubstractionToken
+                | SyntaxKind::DivisionToken => {
+                    state = 0;
+                }
+                _ => {
+                    println!("Error");
+                    state = 0;
+                }
             },
             _ => println!("Some"),
         }
@@ -570,7 +618,11 @@ fn check(list_1: &mut Vec<&str>, list_2: &mut Vec<&str>, symbol_tab: &Vec<Symbol
 }
 
 fn log_error(message: String) {
-    let data_path = Path::new("errors.txt");
+    let args: Vec<String> = std::env::args().collect();
+    let p = String::from("errors.txt");
+    let mut s = String::from(&args[2]);
+    s.push_str(&p);
+    let data_path = std::path::Path::new(&s);
     let mut file = OpenOptions::new()
         .write(true)
         .append(true)
