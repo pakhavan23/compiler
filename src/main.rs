@@ -29,8 +29,8 @@ fn main() {
     file
       .write_all(c_convertor::convert_to_c(tokens).as_bytes())
       .expect("write failed");
-  //std::io::stdin().read_line(&mut String::new()).unwrap();
+    std::io::stdin().read_line(&mut String::new()).unwrap();
   } else {
-    //std::io::stdin().read_line(&mut String::new()).unwrap();
+    std::io::stdin().read_line(&mut String::new()).unwrap();
   }
 }

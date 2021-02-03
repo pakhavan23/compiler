@@ -426,14 +426,16 @@ pub fn parse(
     }
 
     if !stack.is_empty() {
-        log_error("Missing ^".to_string());
+        println!("stack :{:?}", stack);
+        println!("Error on Line 1 : Missing ^");
+        println!("{}", tokens.len());
         token_to_add = SyntaxToken {
             text: "^".to_string(),
             position: 1 as i32,
             kind: SyntaxKind::CaretToken,
             line: line as i32,
         };
-        tokens.insert(tokens.len() - 1, token_to_add);
+        tokens.insert(tokens.len(), token_to_add);
         parse(tokens, table, false);
     }
 
