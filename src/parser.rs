@@ -7,11 +7,10 @@ use crate::syntax_kinds::SyntaxKind;
 use std::fs::OpenOptions;
 
 use std::io::prelude::*;
-use std::path::Path;
 
 pub fn parse(
     tokens: &mut Vec<SyntaxToken>,
-    table: [[&'static str; 33]; 24],
+    table: [[&'static str; 33]; 25],
     is_rejected: bool,
 ) -> bool {
     let mut scanf = false;
@@ -43,7 +42,13 @@ pub fn parse(
             SyntaxKind::WhitespaceToken
             | SyntaxKind::QuotationToken
             | SyntaxKind::SingleQouteToken => continue,
-            SyntaxKind::WordlyToken => non_terminal_index = get_non_terminal_index(&id, &table),
+            SyntaxKind::WordlyToken => {
+                if token.text == "\r" {
+                    continue;
+                } else {
+                    non_terminal_index = get_non_terminal_index(&id, &table);
+                }
+            }
             SyntaxKind::NumberToken => non_terminal_index = get_non_terminal_index(&num, &table),
             SyntaxKind::StringToken
             | SyntaxKind::StringNumToken
@@ -166,10 +171,6 @@ pub fn parse(
                         }
                     } else if value == "error" {
                         flag = false;
-                        println!(
-                            "error on Line {} And {} , {} Errrrr {}",
-                            line, value, text, table[0][non_terminal_index]
-                        );
                         let index = tokens.iter().position(|r| r == token).unwrap();
                         let mut j = index - 1;
                         index_to_add = index - 1;
@@ -180,18 +181,16 @@ pub fn parse(
                             println!("{:?}, {} , num", &tokens[j].kind, tokens[j].position);
                             match &tokens[j].kind {
                                 SyntaxKind::WordlyToken => {
-                                    println!("error");
                                     let mut t = j - 1;
                                     while &tokens[t].text == " " {
                                         t -= 1;
                                     }
                                     match &tokens[t].kind {
-                                        SyntaxKind::CharacterDefToken
-                                        | SyntaxKind::IntegerDefToken
+                                        SyntaxKind::IntegerDefToken
                                         | SyntaxKind::FloatDefToken
                                         | SyntaxKind::CommaToken => {
                                             println!(
-                                                "error Expected = ,between number {} and {}",
+                                                "error Expected = ,between vlaue {} and {}",
                                                 text, tokens[j].text
                                             );
                                             let message = format!("Error on line {} : Expected = , between number {} and variable name {}",line,text,tokens[j].text);
@@ -208,7 +207,7 @@ pub fn parse(
                                         | SyntaxKind::OpenSquareBracketToken
                                         | SyntaxKind::ParenthesesOpenToken => {
                                             println!("error Expected (Jam , Kam , Tagsim , Zarb , Bagimonde , &B , &BM , &K , &KM , &MM) ,between number {} and {}", text,tokens[j].text);
-                                            let message = format!("Error on line {} : Expected (Jam , Kam , Tagsim , Zarb , Bagimonde , &B , &BM , &K , &KM , &MM) ,between number {} and {}", line, text,tokens[j].text);
+                                            let message = format!("Error on line {} : Expected (Jam , Kam , Tagsim , Zarb , Bagimonde , &B , &BM , &K , &KM , &MM) ,between {} and {}", line, text,tokens[j].text);
                                             log_error(message);
                                             token_to_add = SyntaxToken {
                                                 text: "Jam".to_string(),
@@ -371,6 +370,37 @@ pub fn parse(
                                 kind: SyntaxKind::CaretToken,
                                 line: line as i32,
                             };
+                        } else if table[0][non_terminal_index] == "str" {
+                            j = j - 1;
+                            while &tokens[j].text == " " {
+                                j -= 1;
+                            }
+                            match &tokens[j].kind {
+                                SyntaxKind::WordlyToken => {
+                                    let mut t = j - 1;
+                                    while &tokens[t].text == " " {
+                                        t -= 1;
+                                    }
+                                    match &tokens[t].kind {
+                                        SyntaxKind::CharacterDefToken => {
+                                            println!(
+                                                "error Expected = ,between vlaue {} and {}",
+                                                text, tokens[j].text
+                                            );
+                                            let message = format!("Error on line {} : Expected = , between value {} and variable name {}",line,text,tokens[j].text);
+                                            log_error(message);
+                                            token_to_add = SyntaxToken {
+                                                text: "=".to_string(),
+                                                position: 0,
+                                                line: 0,
+                                                kind: SyntaxKind::AssignToken,
+                                            };
+                                        }
+                                        _ => println!("UnKnown"),
+                                    }
+                                }
+                                _ => println!("Unknown Error :{:?}", &tokens[j].kind),
+                            }
                         }
                         break;
                     }
@@ -395,12 +425,24 @@ pub fn parse(
         parse(tokens, table, false);
     }
 
+    if !stack.is_empty() {
+        log_error("Missing ^".to_string());
+        token_to_add = SyntaxToken {
+            text: "^".to_string(),
+            position: 1 as i32,
+            kind: SyntaxKind::CaretToken,
+            line: line as i32,
+        };
+        tokens.insert(tokens.len() - 1, token_to_add);
+        parse(tokens, table, false);
+    }
+
     is_rejected
 }
 
-fn is_terminal(input: &'static str, table: &[[&'static str; 33]; 24]) -> bool {
+fn is_terminal(input: &'static str, table: &[[&'static str; 33]; 25]) -> bool {
     let mut flag: bool = false;
-    for i in 1..24 {
+    for i in 1..25 {
         if table[i][0] == input {
             flag = true;
         }
@@ -409,7 +451,7 @@ fn is_terminal(input: &'static str, table: &[[&'static str; 33]; 24]) -> bool {
     flag
 }
 
-fn is_non_terminal(input: &'static str, table: &[[&'static str; 33]; 24]) -> bool {
+fn is_non_terminal(input: &'static str, table: &[[&'static str; 33]; 25]) -> bool {
     let mut flag: bool = false;
     for i in 1..33 {
         if table[0][i] == input {
@@ -420,9 +462,9 @@ fn is_non_terminal(input: &'static str, table: &[[&'static str; 33]; 24]) -> boo
     flag
 }
 
-fn get_terminal_index(input: &'static str, table: &[[&'static str; 33]; 24]) -> usize {
+fn get_terminal_index(input: &'static str, table: &[[&'static str; 33]; 25]) -> usize {
     let mut index: usize = 0;
-    for i in 1..24 {
+    for i in 1..25 {
         if table[i][0] == input {
             index = i;
         }
@@ -430,7 +472,7 @@ fn get_terminal_index(input: &'static str, table: &[[&'static str; 33]; 24]) -> 
     index
 }
 
-fn get_non_terminal_index(input: &String, table: &[[&'static str; 33]; 24]) -> usize {
+fn get_non_terminal_index(input: &String, table: &[[&'static str; 33]; 25]) -> usize {
     let mut index: usize = 0;
     for i in 1..33 {
         if table[0][i] == input {

@@ -7,7 +7,6 @@ use crate::syntax_kinds::SyntaxKind;
 use std::fs::OpenOptions;
 
 use std::io::prelude::*;
-use std::path::Path;
 
 #[derive(PartialEq, PartialOrd, Debug)]
 struct Symbol {
@@ -20,15 +19,18 @@ struct Symbol {
 pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
     let mut flag_condition = false;
 
+    // List of %d or %f or %c
     let mut check_1: Vec<&str> = vec![];
+    // list of Values for %d , %f , %c
     let mut check_2: Vec<&str> = vec![];
 
+    // Symbol Table
     let mut symbol_tab: Vec<Symbol> = vec![];
     let mut _types: &str = "type";
     let mut _name: &str = "name";
     let mut _value: &str = "value";
-    let mut _scope: &str = "scope";
-    let mut state: i32 = 0;
+    let mut _scope: &str = "main";
+    let mut state: i32 = 0; // Start
     for token in &*tokens {
         match &token.kind {
             SyntaxKind::WhitespaceToken
@@ -63,11 +65,13 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
                             token.line + 1,
                             token.text
                         );
+                        log_error(message);
                     }
                 }
                 SyntaxKind::PrintToken | SyntaxKind::ScanToken => {
                     state = 6;
                 }
+                SyntaxKind::IncrementToken | SyntaxKind::DecrementToken => state = 200,
                 SyntaxKind::ConditionToken | SyntaxKind::LoopToken => {
                     state = 100;
                 }
@@ -277,7 +281,12 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
             },
             9 => match token.kind {
                 SyntaxKind::WordlyToken => {
-                    check_2.push(&token.text);
+                    if token.text.contains("&") {
+                        let v: Vec<&str> = token.text.split("&").collect();
+                        check_2.push(v[1]);
+                    } else {
+                        check_2.push(&token.text);
+                    }
                     state = 9
                 }
                 SyntaxKind::CommaToken => state = 9,
@@ -419,6 +428,15 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
                     }
                 }
                 SyntaxKind::NumberToken => state = 0,
+                SyntaxKind::CharToken => {
+                    println!("error: 'Number' should be compared with 'Number'");
+                    let message = format!(
+                        "Error on line {} : 'Number' should be compared with 'Number'",
+                        token.line + 1
+                    );
+                    log_error(message);
+                    state = 0;
+                }
                 _ => println!("Error 103"),
             },
             104 => match token.kind {
@@ -435,6 +453,15 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
                     state = 0;
                 }
                 SyntaxKind::CharToken => state = 0,
+                SyntaxKind::NumberToken => {
+                    println!("error: 'Harf' should be compared with 'Harf'");
+                    let message = format!(
+                        "Error on line {} : 'Harf' should be compared with 'Harf'",
+                        token.line + 1
+                    );
+                    log_error(message);
+                    state = 0;
+                }
                 _ => println!("Error 104"),
             },
             105 => match token.kind {
@@ -491,6 +518,32 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
                 }
                 _ => println!("Error106"),
             },
+            200 => match token.kind {
+                SyntaxKind::WordlyToken => {
+                    if check_type(&token.text, "char", &symbol_tab) {
+                        let message = format!(
+                            "Error on line {} : No Arithmetic Operation on 'Harf'",
+                            token.line + 1
+                        );
+                        log_error(message);
+                    }
+                    state = 201;
+                }
+                _ => state = 0,
+            },
+            201 => match token.kind {
+                SyntaxKind::AdditionToken
+                | SyntaxKind::ModulusToken
+                | SyntaxKind::MultiplicationToken
+                | SyntaxKind::SubstractionToken
+                | SyntaxKind::DivisionToken => {
+                    state = 0;
+                }
+                _ => {
+                    println!("Error");
+                    state = 0;
+                }
+            },
             _ => println!("Some"),
         }
     }
@@ -542,9 +595,9 @@ fn check(list_1: &mut Vec<&str>, list_2: &mut Vec<&str>, symbol_tab: &Vec<Symbol
             match list_1.pop() {
                 Some(value_1) => match list_2.pop() {
                     Some(value_2) => {
-                        if value_1 == "%d" && check_type(value_2, "int", &symbol_tab) {
-                        } else if value_1 == "%f" && check_type(value_2, "float", &symbol_tab) {
-                        } else if value_1 == "%c" && check_type(value_2, "char", &symbol_tab) {
+                        if value_1 == "%d" && check_type(value_2, "int", symbol_tab) {
+                        } else if value_1 == "%f" && check_type(value_2, "float", symbol_tab) {
+                        } else if value_1 == "%c" && check_type(value_2, "char", symbol_tab) {
                         } else {
                             println!("Error:{} and {} does not match", value_1, value_2);
                             let message = format!(

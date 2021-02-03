@@ -1,19 +1,19 @@
+mod c_convertor;
 mod lexer;
 mod parser;
 mod parsing_table;
 mod semantics;
 mod syntax_kinds;
-mod c_convertor;
 
 use lexer::SyntaxToken;
 use std::fs;
-use std::fs::File;
 use std::io::Write;
 
 fn main() {
   let args: Vec<String> = std::env::args().collect();
   println!("{}", args[2]);
-  let content = fs::read_to_string(args[1].to_string()).expect("Something went wrong reading the file");
+  let content =
+    fs::read_to_string(args[1].to_string()).expect("Something went wrong reading the file");
 
   let mut tokens: Vec<SyntaxToken> = lexer::get_tokens(&content);
 
@@ -26,8 +26,10 @@ fn main() {
     s.push_str(&p);
     let data_path = std::path::Path::new(&s);
     let mut file = std::fs::File::create(data_path).expect("create file failed");
-    file.write_all(c_convertor::convert_to_c(tokens).as_bytes()).expect("write failed");
-    //std::io::stdin().read_line(&mut String::new()).unwrap();
+    file
+      .write_all(c_convertor::convert_to_c(tokens).as_bytes())
+      .expect("write failed");
+  //std::io::stdin().read_line(&mut String::new()).unwrap();
   } else {
     //std::io::stdin().read_line(&mut String::new()).unwrap();
   }
