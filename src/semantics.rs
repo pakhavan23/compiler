@@ -56,6 +56,13 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
                     // test for existing if ok => state = 2 else state = 0
                     // println!("error: variable {} is not declared", token.text);
                     if check_existing(&token.text, &symbol_tab) {
+                        if check_type(&token.text, "char", &symbol_tab) {
+                            _types = "char";
+                        } else if check_type(&token.text, "int", &symbol_tab) {
+                            _types = "int";
+                        } else if check_type(&token.text, "float", &symbol_tab) {
+                            _types = "float";
+                        }
                         state = 2;
                     } else {
                         state = 0;
@@ -123,27 +130,6 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
                 SyntaxKind::AssignToken => {
                     state = 3;
                 }
-                SyntaxKind::AdditionToken
-                | SyntaxKind::SubstractionToken
-                | SyntaxKind::MultiplicationToken
-                | SyntaxKind::DivisionToken
-                | SyntaxKind::ModulusToken
-                | SyntaxKind::IncrementToken
-                | SyntaxKind::DecrementToken => {
-                    if _types == "char" {
-                        println!(
-                            "error: can't perform arithmetic operations on 'Harf' On Line : {}",
-                            token.line + 1
-                        );
-                        let message = format!(
-                            "Error on line {} : Can't perform arithmetic operations on 'Harf'",
-                            token.line + 1
-                        );
-                        log_error(message);
-                    } else {
-                        state = 5;
-                    }
-                }
                 _ => println!("2 , {:?}", token.kind),
             },
             3 => match token.kind {
@@ -176,8 +162,15 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
                     // check for existing the var if ok -> value = &*token.text;state = 4;
                     // println!("error: types mismatched \n variable doesn't have a value matched with the identifier");
                     if check_existing(&token.text, &symbol_tab) {
-                        _value = &token.text;
-                        state = 4;
+                        if check_type(&token.text, _types, &symbol_tab) {
+                            _value = &token.text;
+                            state = 4;
+                        } else {
+                            println!("error: types mismatched \n variable doesn't have a value matched with the identifier");
+                            let message = format!("Error on line {} : types mismatched \nVariable {} does not have type of {}",token.line + 1,token.text,_types);
+                            log_error(message);
+                            state = 4;
+                        }
                     } else {
                         println!("error: variable {} is not declared", token.text);
                         let message = format!(
@@ -206,7 +199,7 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
                         );
                         log_error(message);
                     }
-                    state = 0;
+                    state = 5;
                 }
                 SyntaxKind::CaretToken => {
                     let symbol = Symbol {
@@ -243,6 +236,8 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
                                 let message = format!("Error on line {} : can't perform arithmetic operations on 'Harf'",token.line + 1);
                                 log_error(message);
                                 state = 0;
+                            } else {
+                                state = 4;
                             }
                         } else {
                             println!("error: variable {} is not declared", token.text);
@@ -255,6 +250,25 @@ pub fn symbol_tab_filler(tokens: &mut Vec<SyntaxToken>) {
                             state = 0;
                         }
                     }
+                    SyntaxKind::CharToken => {
+                        println!("error: can't perform arithmetic operations on 'Harf'");
+                        let message = format!(
+                            "Error on line {} : can't perform arithmetic operations on 'Harf'",
+                            token.line + 1
+                        );
+                        log_error(message);
+                        state = 0;
+                    }
+                    SyntaxKind::NumberToken => {
+                        if token.text.contains(".") && _types == "float" {
+                            state = 4;
+                        } else if !token.text.contains(".") && _types == "int" {
+                            state = 4;
+                        } else {
+                            state = 0;
+                        }
+                    }
+
                     _ => println!("5 , {:?}", token.kind),
                 }
             }
@@ -613,7 +627,8 @@ fn check(list_1: &mut Vec<&str>, list_2: &mut Vec<&str>, symbol_tab: &Vec<Symbol
             }
         }
     } else {
-        println!("Ridi");
+        let message = format!("Error on Benevis or Begir: Number of IDs and inputs should amtch!");
+        log_error(message);
     }
 }
 
