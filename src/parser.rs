@@ -426,9 +426,9 @@ pub fn parse(
     }
 
     if !stack.is_empty() {
-        println!("stack :{:?}", stack);
-        println!("Error on Line 1 : Missing ^");
-        println!("{}", tokens.len());
+        println!("Error on Line {} : Missing ^", line);
+        let message = format!("Error on Line {} : Missing ^", line);
+        log_error(message);
         token_to_add = SyntaxToken {
             text: "^".to_string(),
             position: 1 as i32,
